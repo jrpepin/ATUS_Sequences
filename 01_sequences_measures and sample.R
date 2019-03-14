@@ -59,15 +59,68 @@ data <- data %>%
           actline    = as.integer(lbl_clean(actline)),
           activity   = as.character(lbl_clean(activity)))
 
-## Change NA to 0 for duration minutes
-data[["duration"]][is.na(data[["duration"]])] <- 0
-summary(data$duration)
+# Create activity dataset
+actdata <- data %>%
+  filter(rectype == 3) %>%
+  select(caseid, actline, activity, duration)
 
-data[["activity"]][is.na(data[["activity"]])] <- "0"
-summary(data$activity)
+## Change NA to 0 for duration minutes
+actdata[["duration"]][is.na(actdata[["duration"]])] <- 0
+summary(actdata$duration)
+
+actdata[["activity"]][is.na(actdata[["activity"]])] <- "0"
+summary(actdata$activity)
 
 
 ## Check that duration = 1440
-data %>%
+actdata %>%
   group_by(caseid) %>%
   summarise(total= sum(duration))
+
+## /We're going to group activities together in local macros that we can use later
+
+### Groups are:
+  # Sleep/Grooming 
+  # Eating
+  # Work and education
+  # Care work 
+  # Housework 
+  # Passive leisure 
+  # All other activities
+
+## Sleep/Grooming
+selfcare <- actdata$activity %in% 
+  c(010100:020000, 080500:080600)
+
+## Eating
+eating  <- actdata$activity %in% 
+  c(110000:120000, 181101, 181199)
+  
+## Paid Work & Education -- and related travel
+workedu <- actdata$activity %in% 
+  c(050100:060000, 060100:070000, 160103, 180500:180600, 180600:180700)
+
+## Care work -- childcare & eldercare
+allcare <- actdata$activity %in% 
+  c(030100:040000, 080100:080200, 180300:180400)
+
+## Household Work (Housework, Shopping/Services)
+hwork <- actdata$activity %in% 
+  c(020100:030000, 080200:080300, 080700:080800, 090100:100000, 070101, 180701, 180904, 180807, 180903, 080699, 160106)
+  
+## Passive leisure
+passleis <- actdata$activity %in% 
+  c(120300:120308, 120503, 120399)
+
+actdata$actcat                        <- NA
+actdata$actcat[selfcare]              <- "Sleep & Self-care"
+actdata$actcat[eating]                <- "Eating"
+actdata$actcat[workedu]               <- "Work & Edu"
+actdata$actcat[allcare]               <- "Carework"
+actdata$actcat[hwork]                 <- "Housework"
+actdata$actcat[passleis]              <- "Passive Leisure"
+actdata$actcat[is.na(actdata$actcat)] <- "Other"
+
+actdata$actcat <- as.character(actdata$actcat)
+
+  
