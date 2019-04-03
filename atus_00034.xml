@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="ipums-ddi-xslt.xsl"?>
-<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" ID="ddi2-79186_atus_00031.dat-www.atusdata.org">
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" ID="ddi2-79186_atus_00034.dat-www.atusdata.org">
   <docDscr>
     <citation>
       <titlStmt>
         <titl>Codebook for an ATUS Data Extract</titl>
-        <subTitl>DDI 2.5 metadata describing the extract file  'atus_00031.dat'</subTitl>
-        <IDNo>ddi2-79186_atus_00031.dat-www.atusdata.org</IDNo>
+        <subTitl>DDI 2.5 metadata describing the extract file  'atus_00034.dat'</subTitl>
+        <IDNo>ddi2-79186_atus_00034.dat-www.atusdata.org</IDNo>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">Minnesota Population Center</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="MPC" affiliation="University of Minnesota" role="Documentation">Minnesota Population Center</producer>
-        <prodDate date="2019-03-07">March 7, 2019</prodDate>
+        <prodDate date="2019-04-01">April 1, 2019</prodDate>
         <prodPlac>Minnesota Population Center, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -24,14 +24,14 @@
   <stdyDscr>
     <citation>
       <titlStmt>
-        <titl>User Extract atus_00031.dat</titl>
+        <titl>User Extract atus_00034.dat</titl>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">Minnesota Population Center</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="MPC" affiliation="University of Minnesota" role="Documentation">Minnesota Population Center</producer>
-        <prodDate date="2019-03-07">March 7, 2019</prodDate>
+        <prodDate date="2019-04-01">April 1, 2019</prodDate>
         <prodPlac>Minnesota Population Center, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -42,7 +42,7 @@
         <serInfo>DOI:10.18128/D060.V2.7</serInfo>
       </serStmt>
       <verStmt>
-        <version date="2019-03-07"/>
+        <version date="2019-04-01"/>
       </verStmt>
     </citation>
     <stdyInfo>
@@ -170,12 +170,12 @@ The licensing agreement for use of ATUS data requires that users supply us with 
         <disclaimer>The user of the data acknowledges that the original collector of the data, the authorized distributor of the data, and the relevant funding agency bear no responsibility for use of the data or for interpretations or inferences based upon such uses.</disclaimer>
       </useStmt>
     </dataAccs>
-    <notes><![CDATA[User-provided description:  sequences_v2]]></notes>
-    <notes>This extract is a revision of the user's previous extract, number 30.</notes>
+    <notes><![CDATA[User-provided description:  sequences_v5]]></notes>
+    <notes>This extract is a revision of the user's previous extract, number 33.</notes>
   </stdyDscr>
   <fileDscr ID="ExtractData">
     <fileTxt>
-      <fileName>atus_00031.dat</fileName>
+      <fileName>atus_00034.dat</fileName>
       <fileCont>Microdata records</fileCont>
       <fileStrc type="hierarchical">
         <recGrp rectype="5" recidvar="RECTYPE" keyvar="CASEID">

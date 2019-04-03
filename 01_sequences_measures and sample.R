@@ -4,12 +4,13 @@
 setwd("C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences")
 
 ## Create a data extract using ATUS-X
-# Samples:          2003-2017
+# Samples:          2003-2017 - Respondents and Household Members
 # Variables:
 # "RECTYPE"       "YEAR"          "CASEID"        "PERNUM"        "LINENO         "LINENO_CPS8"   "PRESENCE"      "DAY"
 # "WT06"          "AGE"           "SEX"           "RACE"          "HISPAN"        "MARST"         "RELATE"        "EDUC"
 # "EDUCYRS"       "EMPSTAT"       "CLWKR"         "FULLPART"      "UHRSWORKT"     "SPOUSEPRES"    "HH_SIZE"       
 # "ACTIVITY"      "DURATION"      "ACTLINE"
+
 
 ## Set up instructions for importing the data 
 # https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html
@@ -20,7 +21,7 @@ library(ipumsr)
 library(tidyverse, warn.conflicts = FALSE)
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00031.xml")
+ddi <- read_ipums_ddi("atus_00034.xml")
 data <- read_ipums_micro(ddi)
 
 ## Make the variable names lowercase
@@ -123,4 +124,121 @@ actdata$actcat[is.na(actdata$actcat)] <- "Other"
 
 actdata$actcat <- as.character(actdata$actcat)
 
-  
+# Duration summary activty variables  -- person level
+actdata <- actdata %>%
+  group_by(caseid) %>%
+  summarise (selfcare    = sum(duration[actcat ==  "Sleep & Self-care"],      na.rm=TRUE),
+             eating      = sum(duration[actcat ==  "Eating"],                 na.rm=TRUE),
+             workedu     = sum(duration[actcat ==  "Work & Edu"],             na.rm=TRUE),
+             allcare     = sum(duration[actcat ==  "Carework"],               na.rm=TRUE),
+             hwork       = sum(duration[actcat ==  "Housework"],              na.rm=TRUE),
+             passleis    = sum(duration[actcat ==  "Passive Leisure"],        na.rm=TRUE),
+             otheract    = sum(duration[actcat ==  "Other"],                  na.rm=TRUE))
+
+# Create person level demographic data
+
+## Household variable
+rec1 <- data %>% 
+  group_by(caseid) %>%
+  filter(rectype == 1) %>%
+  select(caseid, hh_size)
+
+colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
+
+## Household member demographics
+rec2 <- data %>% 
+  group_by(caseid) %>% 
+  filter(rectype == 2) %>%
+  select(caseid, year, pernum, lineno, lineno_cps8, presence, day, wt06, 
+         age, sex, race, hispan, marst, relate, educ, educyrs, empstat, clwkr, fullpart, uhrsworkt, spousepres)
+
+### who lives in household
+rec2 <- rec2 %>%
+  mutate(
+    spouse        = ifelse(relate == "Spouse",                          1, 0),
+    umpartner     = ifelse(relate == "Unmarried Partner",               1, 0),
+    hhchild       = ifelse(relate == "Own household child",             1, 0),
+    hhchildu18    = ifelse(relate == "Own household child" & age <  18, 1, 0),
+    hhchildo18    = ifelse(relate == "Own household child" & age >= 18, 1, 0),
+    hhchildu13    = ifelse(relate == "Own household child" & age <  13, 1, 0),
+    grandchild    = ifelse(relate == "Grandchild",                      1, 0),
+    grandchildu18 = ifelse(relate == "Grandchild"          & age <  18, 1, 0),
+    grandchildo18 = ifelse(relate == "Grandchild"          & age >= 18, 1, 0),
+    parent        = ifelse(relate == "Parent",                          1, 0),
+    sibling       = ifelse(relate == "Brother/Sister",                  1, 0),
+    siblingo18    = ifelse(relate == "Brother/Sister"      & age >= 18, 1, 0),
+    otherrelative = ifelse(relate == "Other relative",                  1, 0),
+    foster        = ifelse(relate == "Foster child",                    1, 0),
+    nonrelative   = ifelse(relate == "Other nonrelative",               1, 0),
+    notinhh       = ifelse(relate == "Own non-household child lt 18",   1, 0),
+    kidu2dum      = ifelse((relate == "Own household child" | relate == "Foster child") &  age<2,            1, 0),
+    kid2to5       = ifelse((relate == "Own household child" | relate == "Foster child") & (age>=2 | age<=5), 1, 0))
+
+rec2 <- rec2 %>%
+  mutate(
+    exfamdum     = case_when(
+      (hhchildo18 == 1 |  parent == 1 |   siblingo18 == 1 | otherrelative == 1)  ~ 1))
+rec2$exfamdum[is.na(rec2$exfamdum)] <- 0
+
+max <- rec2 %>% 
+  group_by(caseid) %>% 
+  summarise_at(vars(spouse, umpartner, hhchild, hhchildu18, hhchildo18, hhchildu13, grandchild, grandchildu18, grandchildo18, 
+                    parent, sibling, siblingo18, otherrelative, foster, nonrelative, notinhh, kidu2dum, kid2to5, exfamdum), ~max(., na.rm = TRUE))
+
+sum <- rec2 %>% 
+  select(caseid, kidu2dum, hhchild, kid2to5) %>%
+  group_by(caseid) %>% 
+  summarise(kidu2num   = sum(!is.na(kidu2dum)),
+            humhhchild = sum(!is.na(hhchild)),
+            kid2to5num = sum(!is.na(kid2to5)))
+
+demo <- rec2 %>%
+  group_by(caseid) %>% 
+  filter(relate == "Self") %>%
+  summarise_at(vars(year, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+                    clwkr, fullpart, uhrsworkt, spousepres), funs(first))
+
+# Combine datasets
+atus <- reduce(list(actdata, rec1, max, sum, demo), 
+               left_join, by = "caseid")
+
+head(atus, n = 5)
+# remove unnecessary databases
+remove(actdata)
+remove(rec1)
+remove(rec2)
+remove(max)
+remove(sum)
+remove(demo)
+
+# Respondent demographics
+
+## Gender
+atus$sex <- droplevels(atus)$sex
+levels(atus$sex) <- c('Men', 'Women')
+
+## Age
+summary(atus$age)
+
+######## START HERE
+
+### Marital status
+atus <- atus %>%
+  mutate(
+    mar = case_when(
+      spousepres == "Spouse present"                                                         ~ "Married",
+      spousepres == "Unmarried partner present"                                              ~ "Cohabiting",
+      marst      == "Never married" & spousepres == "No spouse or unmarried partner present" ~ "Never married",
+      marst      != "Widowed" & marst != "Never married" & 
+        spousepres == "No spouse or unmarried partner present"                                 ~ "Divorced/Separated", 
+      TRUE                                                                                   ~  NA_character_ 
+    ))
+atus$mar <- as_factor(atus$mar, levels = c("Married", "Cohabiting", "Single", "Divorced/Separated", ordered = TRUE))
+
+
+gen nevmar=(spousepres==3 & marst==6);
+gen separated=(spousepres==3 & (marst==1 | marst==2 | marst==5));
+gen divorced=(spousepres==3 & marst==4);
+gen widowed=(spousepres==3 & marst==3);
+gen married=(spousepres==1);
+/*umpartner=1 is cohabiting*/
