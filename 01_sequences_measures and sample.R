@@ -242,3 +242,9 @@ gen divorced=(spousepres==3 & marst==4);
 gen widowed=(spousepres==3 & marst==3);
 gen married=(spousepres==1);
 /*umpartner=1 is cohabiting*/
+  
+## Possible minute file code
+library(tidyr)
+test <- atus %>% 
+  group_by(caseid) %>%
+  uncount(duration)
