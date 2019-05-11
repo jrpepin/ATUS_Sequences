@@ -107,7 +107,8 @@ allcare <- actdata$activity %in%
 
 ## Household Work (Housework, Shopping/Services)
 hwork <- actdata$activity %in% 
-  c(020100:030000, 080200:080300, 080700:080800, 090100:100000, 070101, 180701, 180904, 180807, 180903, 080699, 160106)
+  c(020100:030000, 080200:080300, 080700:080800, 090100:100000, 070101, 
+    180701, 180904, 180807, 180903, 080699, 160106)
   
 ## Passive leisure
 passleis <- actdata$activity %in% 
