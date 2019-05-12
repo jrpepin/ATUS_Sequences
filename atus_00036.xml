@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="ipums-ddi-xslt.xsl"?>
-<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" ID="ddi2-79186_atus_00034.dat-www.atusdata.org">
+<codeBook xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd" version="2.5" ID="ddi2-79186_atus_00036.dat-www.atusdata.org">
   <docDscr>
     <citation>
       <titlStmt>
         <titl>Codebook for an ATUS Data Extract</titl>
-        <subTitl>DDI 2.5 metadata describing the extract file  'atus_00034.dat'</subTitl>
-        <IDNo>ddi2-79186_atus_00034.dat-www.atusdata.org</IDNo>
+        <subTitl>DDI 2.5 metadata describing the extract file  'atus_00036.dat'</subTitl>
+        <IDNo>ddi2-79186_atus_00036.dat-www.atusdata.org</IDNo>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">Minnesota Population Center</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="MPC" affiliation="University of Minnesota" role="Documentation">Minnesota Population Center</producer>
-        <prodDate date="2019-04-01">April 1, 2019</prodDate>
+        <prodDate date="2019-05-12">May 12, 2019</prodDate>
         <prodPlac>Minnesota Population Center, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -24,14 +24,14 @@
   <stdyDscr>
     <citation>
       <titlStmt>
-        <titl>User Extract atus_00034.dat</titl>
+        <titl>User Extract atus_00036.dat</titl>
       </titlStmt>
       <rspStmt>
         <AuthEnty affiliation="University of Minnesota">Minnesota Population Center</AuthEnty>
       </rspStmt>
       <prodStmt>
         <producer abbr="MPC" affiliation="University of Minnesota" role="Documentation">Minnesota Population Center</producer>
-        <prodDate date="2019-04-01">April 1, 2019</prodDate>
+        <prodDate date="2019-05-12">May 12, 2019</prodDate>
         <prodPlac>Minnesota Population Center, 50 Willey Hall, 225 - 19th Avenue South, Minneapolis, MN 55455</prodPlac>
       </prodStmt>
       <distStmt>
@@ -42,7 +42,7 @@
         <serInfo>DOI:10.18128/D060.V2.7</serInfo>
       </serStmt>
       <verStmt>
-        <version date="2019-04-01"/>
+        <version date="2019-05-12"/>
       </verStmt>
     </citation>
     <stdyInfo>
@@ -155,7 +155,7 @@
         <contact affiliation="Minnesota Population Center" URI="http://atusdata.org/">ATUS</contact>
         <citReq><![CDATA[Publications and research reports based on the ATUS database must cite it appropriately. The citation should include the following:
 
-Sandra L. Hofferth, Sarah M. Flood, and Matthew Sobek. American Time Use Survey Data Extract Builder: Version 2.7 [dataset]. College Park, MD: University of Maryland and Minneapolis, MN: IPUMS, 2018. https://doi.org/10.18128/D060.V2.7
+Sandra L. Hofferth, Sarah M. Flood and Matthew Sobek. American Time Use Survey Data Extract Builder: Version 2.7 [dataset]. College Park, MD: University of Maryland and Minneapolis, MN: IPUMS, 2018. https://doi.org/10.18128/D060.V2.7
 
 The licensing agreement for use of ATUS data requires that users supply us with the title and full citation for any publications, research reports, or educational materials making use of the data or documentation. Please add your citation to the IPUMS bibliography: http://bibliography.ipums.org/]]></citReq>
         <conditions><![CDATA[Users of ATUS data must agree to abide by the conditions of use. A user's license is valid for one year and may be renewed.  Users must agree to the following conditions:
@@ -170,12 +170,12 @@ The licensing agreement for use of ATUS data requires that users supply us with 
         <disclaimer>The user of the data acknowledges that the original collector of the data, the authorized distributor of the data, and the relevant funding agency bear no responsibility for use of the data or for interpretations or inferences based upon such uses.</disclaimer>
       </useStmt>
     </dataAccs>
-    <notes><![CDATA[User-provided description:  sequences_v5]]></notes>
-    <notes>This extract is a revision of the user's previous extract, number 33.</notes>
+    <notes><![CDATA[User-provided description:  sequences_v6]]></notes>
+    <notes>This extract is a revision of the user's previous extract, number 34.</notes>
   </stdyDscr>
   <fileDscr ID="ExtractData">
     <fileTxt>
-      <fileName>atus_00034.dat</fileName>
+      <fileName>atus_00036.dat</fileName>
       <fileCont>Microdata records</fileCont>
       <fileStrc type="hierarchical">
         <recGrp rectype="5" recidvar="RECTYPE" keyvar="CASEID">
@@ -200,30 +200,18 @@ The licensing agreement for use of ATUS data requires that users supply us with 
     </fileTxt>
   </fileDscr>
   <dataDscr>
-    <var ID="RECTYPE" files="ExtractData" name="RECTYPE" intrvl="discrete" dcml="0" rectype="1 2 3 4 5">
+    <var ID="RECTYPE" files="ExtractData" name="RECTYPE" intrvl="contin" dcml="0" rectype="1 2 3 4 5">
       <location StartPos="1" width="1" EndPos="1"/>
       <labl>Record Type</labl>
       <txt><![CDATA[RECTYPE assigns all household records the value "1"; person records are assigned "2"; activity records are assigned "3"; who records are assigned "4"; and eldercare records are assigned "5". This allows users to discriminate between different types of records in the data. Each household record is followed by one or more person records. ATUS respondents (LINENO=1) are followed by many activity records, which comprise the main time diary component of the data. Respondents may report many people with whom the activity was done; accordingly these records follow the activities to which they correspond. Finally, in 2011 forward, eldercare records include information about the individuals to whom the ATUS respondent has provided care.]]></txt>
-      <catgry>
-        <catValu>1</catValu>
-        <labl>H</labl>
-      </catgry>
-      <catgry>
-        <catValu>2</catValu>
-        <labl>P</labl>
-      </catgry>
-      <catgry>
-        <catValu>3</catValu>
-        <labl>A</labl>
-      </catgry>
-      <catgry>
-        <catValu>4</catValu>
-        <labl>W</labl>
-      </catgry>
-      <catgry>
-        <catValu>5</catValu>
-        <labl>R</labl>
-      </catgry>
+      <codInstr><![CDATA[
+RECTYPE is a 1-character variable. Correspondence between values in the data and record types is as follows:
+
+1 = H (Household)
+2 = P (Person)
+3 = A (Activity)
+4 = W (Who)
+5 = R (Eldercare recipient)]]></codInstr>
       <concept vocab="IPUMS">Technical Household Variables -- HOUSEHOLD</concept>
       <varFormat schema="other" type="numeric"/>
     </var>
@@ -919,7 +907,9 @@ HISPAN was drawn from the final CPS interview, conducted 2-5 months before the A
       <labl>Marital status</labl>
       <txt><![CDATA[MARST gives each person's marital status.
 
-MARST was drawn from the final CPS interview, conducted 2-5 months before the ATUS interview. Marital status was not collected at the time of the ATUS interview.]]></txt>
+MARST was drawn from the final CPS interview, conducted 2-5 months before the ATUS interview. Marital status was not collected at the time of the ATUS interview.
+
+For information about the presence of a spouse or partner at the time of the ATUS interview, see SPOUSEPRES.]]></txt>
       <catgry>
         <catValu>01</catValu>
         <labl>Married - spouse present</labl>
@@ -1372,6 +1362,25 @@ SPOUSEPRES was collected at the time of the ATUS interview.]]></txt>
       </catgry>
       <catgry>
         <catValu>99</catValu>
+        <labl>NIU (Not in universe)</labl>
+      </catgry>
+      <concept vocab="IPUMS">Spouse Characteristic Variables -- PERSON</concept>
+      <varFormat schema="other" type="numeric"/>
+    </var>
+    <var ID="SPSEX" files="ExtractData" name="SPSEX" intrvl="discrete" dcml="0" rectype="2">
+      <location StartPos="85" width="3" EndPos="87"/>
+      <labl>Sex of respondent's spouse or unmarried partner</labl>
+      <txt><![CDATA[SPSEX reports whether the respondent's spouse or unmarried partner is male or female.]]></txt>
+      <catgry>
+        <catValu>001</catValu>
+        <labl>Male</labl>
+      </catgry>
+      <catgry>
+        <catValu>002</catValu>
+        <labl>Female</labl>
+      </catgry>
+      <catgry>
+        <catValu>099</catValu>
         <labl>NIU (Not in universe)</labl>
       </catgry>
       <concept vocab="IPUMS">Spouse Characteristic Variables -- PERSON</concept>

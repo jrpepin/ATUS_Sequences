@@ -21,7 +21,7 @@ library(ipumsr)
 library(tidyverse, warn.conflicts = FALSE)
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00034.xml")
+ddi <- read_ipums_ddi("atus_00036.xml")
 data <- read_ipums_micro(ddi)
 
 ## Make the variable names lowercase
@@ -140,15 +140,13 @@ actdata <- actdata %>%
 
 ## Household variable
 rec1 <- data %>% 
-  group_by(caseid) %>%
   filter(rectype == 1) %>%
-  select(caseid, hh_size)
+  select(caseid,  hh_size)
 
 colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
 
 ## Household member demographics
 rec2 <- data %>% 
-  group_by(caseid) %>% 
   filter(rectype == 2) %>%
   select(caseid, year, pernum, lineno, lineno_cps8, presence, day, wt06, 
          age, sex, race, hispan, marst, relate, educ, educyrs, empstat, clwkr, fullpart, uhrsworkt, spousepres)
@@ -172,8 +170,8 @@ rec2 <- rec2 %>%
     foster        = ifelse(relate == "Foster child",                    1, 0),
     nonrelative   = ifelse(relate == "Other nonrelative",               1, 0),
     notinhh       = ifelse(relate == "Own non-household child lt 18",   1, 0),
-    kidu2dum      = ifelse((relate == "Own household child" | relate == "Foster child") &  age<2,            1, 0),
-    kid2to5       = ifelse((relate == "Own household child" | relate == "Foster child") & (age>=2 | age<=5), 1, 0))
+    kidu2dum      = ifelse((relate == "Own household child" | relate == "Foster child") &  age <  2,            1, 0),
+    kid2to5       = ifelse((relate == "Own household child" | relate == "Foster child") & (age >= 2 & age<=5),  1, 0))
 
 rec2 <- rec2 %>%
   mutate(
@@ -186,18 +184,17 @@ max <- rec2 %>%
   summarise_at(vars(spouse, umpartner, hhchild, hhchildu18, hhchildo18, hhchildu13, grandchild, grandchildu18, grandchildo18, 
                     parent, sibling, siblingo18, otherrelative, foster, nonrelative, notinhh, kidu2dum, kid2to5, exfamdum), ~max(., na.rm = TRUE))
 
-sum <- rec2 %>% 
+sum <- rec2 %>%
   select(caseid, kidu2dum, hhchild, kid2to5) %>%
   group_by(caseid) %>% 
   summarise(kidu2num   = sum(!is.na(kidu2dum)),
-            humhhchild = sum(!is.na(hhchild)),
+            numhhchild = sum(!is.na(hhchild)),
             kid2to5num = sum(!is.na(kid2to5)))
 
 demo <- rec2 %>%
-  group_by(caseid) %>% 
   filter(relate == "Self") %>%
-  summarise_at(vars(year, age, sex, race, hispan, marst, educ, educyrs, empstat, 
-                    clwkr, fullpart, uhrsworkt, spousepres), funs(first))
+  select(caseid, year, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+                    clwkr, fullpart, uhrsworkt, spousepres)
 
 # Combine datasets
 atus <- reduce(list(actdata, rec1, max, sum, demo), 
@@ -231,7 +228,7 @@ atus <- atus %>%
       spousepres == "Unmarried partner present"                                              ~ "Cohabiting",
       marst      == "Never married" & spousepres == "No spouse or unmarried partner present" ~ "Never married",
       marst      != "Widowed" & marst != "Never married" & 
-        spousepres == "No spouse or unmarried partner present"                                 ~ "Divorced/Separated", 
+      spousepres == "No spouse or unmarried partner present"                                 ~ "Divorced/Separated", 
       TRUE                                                                                   ~  NA_character_ 
     ))
 atus$mar <- as_factor(atus$mar, levels = c("Married", "Cohabiting", "Single", "Divorced/Separated", ordered = TRUE))
