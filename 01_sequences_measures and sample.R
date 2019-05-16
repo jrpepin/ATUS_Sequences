@@ -21,7 +21,7 @@ library(ipumsr)
 library(tidyverse, warn.conflicts = FALSE)
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00036.xml") # Change to 38 to add start and stop vars
+ddi <- read_ipums_ddi("atus_00038.xml")
 data <- read_ipums_micro(ddi)
 
 ## Make the variable names lowercase
@@ -63,7 +63,7 @@ data <- data %>%
 # Create activity dataset
 actdata <- data %>%
   filter(rectype == 3) %>%
-  select(caseid, year, actline, activity, duration)
+  select(caseid, year, actline, activity, duration, start, stop)
 
 ## Change NA to 0 for duration minutes
 actdata[["duration"]][is.na(actdata[["duration"]])] <- 0
@@ -213,7 +213,7 @@ remove(demo)
 
 ## Gender
 atus$sex <- droplevels(atus)$sex         # Drop "NIU (Not in universe)" level
-levels(atus$sex) <- c('Men', 'Women')    
+levels(atus$sex) <- c('Man', 'Woman')
 
 ## Marital status
 atus <- atus %>%
