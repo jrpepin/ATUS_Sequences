@@ -9,7 +9,7 @@ setwd("C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences")
 # "RECTYPE"       "YEAR"          "CASEID"        "PERNUM"        "LINENO         "LINENO_CPS8"   "PRESENCE"      "DAY"
 # "WT06"          "AGE"           "SEX"           "RACE"          "HISPAN"        "MARST"         "RELATE"        "EDUC"
 # "EDUCYRS"       "EMPSTAT"       "CLWKR"         "FULLPART"      "UHRSWORKT"     "SPOUSEPRES"    "HH_SIZE"       
-# "ACTIVITY"      "DURATION"      "ACTLINE"
+# "ACTIVITY"      "DURATION"      "ACTLINE"       "START"         "STOP"
 
 
 ## Set up instructions for importing the data 
@@ -21,7 +21,7 @@ library(ipumsr)
 library(tidyverse, warn.conflicts = FALSE)
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00036.xml")
+ddi <- read_ipums_ddi("atus_00036.xml") # Change to 38 to add start and stop vars
 data <- read_ipums_micro(ddi)
 
 ## Make the variable names lowercase
@@ -63,7 +63,7 @@ data <- data %>%
 # Create activity dataset
 actdata <- data %>%
   filter(rectype == 3) %>%
-  select(caseid, actline, activity, duration)
+  select(caseid, year, actline, activity, duration)
 
 ## Change NA to 0 for duration minutes
 actdata[["duration"]][is.na(actdata[["duration"]])] <- 0
@@ -126,7 +126,7 @@ actdata$actcat[is.na(actdata$actcat)] <- "Other"
 actdata$actcat <- as.character(actdata$actcat)
 
 # Duration summary activty variables  -- person level
-actdata <- actdata %>%
+actsum <- actdata %>%
   group_by(caseid) %>%
   summarise (selfcare    = sum(duration[actcat ==  "Sleep & Self-care"],      na.rm=TRUE),
              eating      = sum(duration[actcat ==  "Eating"],                 na.rm=TRUE),
@@ -193,16 +193,16 @@ sum <- rec2 %>%
 
 demo <- rec2 %>%
   filter(relate == "Self") %>%
-  select(caseid, year, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+  select(caseid, year, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
                     clwkr, fullpart, uhrsworkt, spousepres)
 
 # Combine datasets
-atus <- reduce(list(actdata, rec1, max, sum, demo), 
+atus <- reduce(list(actsum, rec1, max, sum, demo), 
                left_join, by = "caseid")
 
 head(atus, n = 5)
 # remove unnecessary databases
-remove(actdata)
+remove(actsum)
 remove(rec1)
 remove(rec2)
 remove(max)
@@ -212,37 +212,115 @@ remove(demo)
 # Respondent demographics
 
 ## Gender
-atus$sex <- droplevels(atus)$sex
-levels(atus$sex) <- c('Men', 'Women')
+atus$sex <- droplevels(atus)$sex         # Drop "NIU (Not in universe)" level
+levels(atus$sex) <- c('Men', 'Women')    
 
-## Age
-summary(atus$age)
-
-######## START HERE
-
-### Marital status
+## Marital status
 atus <- atus %>%
   mutate(
     mar = case_when(
-      spousepres == "Spouse present"                                                         ~ "Married",
-      spousepres == "Unmarried partner present"                                              ~ "Cohabiting",
-      marst      == "Never married" & spousepres == "No spouse or unmarried partner present" ~ "Never married",
-      marst      != "Widowed" & marst != "Never married" & 
-      spousepres == "No spouse or unmarried partner present"                                 ~ "Divorced/Separated", 
-      TRUE                                                                                   ~  NA_character_ 
+      spousepres == "No spouse or unmarried partner present" & marst == "Never married"                      ~ "Never married",
+      spousepres == "No spouse or unmarried partner present" & 
+      (marst     == "Married - spouse present" | marst == "Married - spouse absent" | marst == "Separated")  ~ "Separated",
+      spousepres == "No spouse or unmarried partner present" & marst == "Divorced"                           ~ "Divorced",
+      spousepres == "No spouse or unmarried partner present" & marst == "Widowed"                            ~ "Widowed",
+      spousepres == "Spouse present"                                                                         ~ "Married",
+      umpartner  == 1                                                                                        ~ "Cohabiting",
+      TRUE                                                                                                   ~  NA_character_ 
     ))
-atus$mar <- as_factor(atus$mar, levels = c("Married", "Cohabiting", "Single", "Divorced/Separated", ordered = TRUE))
 
+atus$nevmar    <- as.numeric(atus$mar == "Never married")
+atus$separated <- as.numeric(atus$mar == "Separated")
+atus$divorced  <- as.numeric(atus$mar == "Divorced")
+atus$widowed   <- as.numeric(atus$mar == "Widowed")
+atus$married   <- as.numeric(atus$mar == "Married")
+# umpartner=1 is cohabiting
+atus$divsep    <-as.numeric(atus$mar == "Divorced" | atus$mar == "Separated")
 
-gen nevmar=(spousepres==3 & marst==6);
-gen separated=(spousepres==3 & (marst==1 | marst==2 | marst==5));
-gen divorced=(spousepres==3 & marst==4);
-gen widowed=(spousepres==3 & marst==3);
-gen married=(spousepres==1);
-/*umpartner=1 is cohabiting*/
-  
-## Possible minute file code
-library(tidyr)
-test <- atus %>% 
-  group_by(caseid) %>%
-  uncount(duration)
+atus <- atus %>%
+  mutate(
+    marstat = case_when(
+      married    == 1                                 ~ "Married",
+      umpartner  == 1                                 ~ "Cohabiting",
+      nevmar     == 1                                 ~ "Never married",
+      divorced   == 1 | separated == 1 | widowed == 1 ~ "Divorced/Separated/Widowed",
+      TRUE                                            ~  NA_character_ 
+    ))
+
+atus$marstat <- factor(atus$marstat, ordered = TRUE, 
+                       levels = c("Married", "Cohabiting", "Never married", "Divorced/Separated/Widowed"))
+
+## Race/Ethnicity 
+atus <- atus %>%
+  mutate(
+    raceethnicity = case_when(
+      race   == "White only" & hispan == "Not Hispanic" ~ "White",
+      race   == "Black only" & hispan == "Not Hispanic" ~ "Black",
+      race   == "Asian only" & hispan == "Not Hispanic" ~ "Asian",
+      hispan != "Not Hispanic"                          ~ "Hispanic",
+      race   != "White only" & race   != "Black only"   &
+      race   != "Asian only" & hispan == "Not Hispanic" ~ "Other race",
+      TRUE                                              ~  NA_character_ 
+    ))
+
+atus$raceethnicity <- factor(atus$raceethnicity, ordered = TRUE, 
+                       levels = c("White", "Black", "Asian", "Hispanic", "Other race"))
+
+atus$white       <- as.numeric(atus$raceethnicity == "White")
+atus$black       <- as.numeric(atus$raceethnicity == "Black")
+atus$asian       <- as.numeric(atus$raceethnicity == "Asian")
+atus$hispanic    <- as.numeric(atus$raceethnicity == "Hispanic")
+atus$otherrace   <- as.numeric(atus$raceethnicity == "Other race")
+
+## Weekend
+atus$weekend     <- as.numeric(atus$day == "Sunday" | atus$day == "Saturday")
+
+## Education
+atus <- atus %>%
+  mutate(
+    edcat = case_when(
+      educ >= 10 & educ <= 17 ~ "Less than high school",
+      educ >= 20 & educ <= 21 ~ "High school",
+      educ >= 30 & educ <= 32 ~ "Some college",
+      educ >= 40 & educ <= 43 ~ "College",
+      TRUE                    ~ NA_character_ 
+    ))
+
+atus$lths       <- as.numeric(atus$edcat == "Less than high school")
+atus$highschool <- as.numeric(atus$edcat == "High school")
+atus$somecol    <- as.numeric(atus$edcat == "Some college")
+atus$baormore   <- as.numeric(atus$edcat == "College")
+
+## Age
+atus <- atus %>%
+  mutate(
+    agecat = case_when(
+      age >= 15 & age <= 17 ~ "15-17",
+      age >= 18 & age <= 24 ~ "18-24",
+      age >= 25 & age <= 34 ~ "25-34",
+      age >= 35 & age <= 44 ~ "35-44",
+      age >= 45 & age <= 54 ~ "45-54",
+      age >= 55             ~ "55+",
+      TRUE                  ~ NA_character_ 
+    ))
+
+atus$under18       <- as.numeric(atus$agecat == "15-17")
+atus$a18to24       <- as.numeric(atus$agecat == "18-24")
+atus$a25to34       <- as.numeric(atus$agecat == "25-34")
+atus$a35to44       <- as.numeric(atus$agecat == "35-44")
+atus$a45to54       <- as.numeric(atus$agecat == "45-54")
+atus$a55plus       <- as.numeric(atus$agecat == "55+")
+
+## Employment
+atus <- atus %>%
+  mutate(
+    employ = case_when(
+      fullpart == 1  ~ "Full time",
+      fullpart == 2  ~ "Part time",
+      fullpart == 99 ~ "Not in labor force",
+      TRUE           ~ NA_character_ 
+    ))
+      
+atus$fulltime       <- as.numeric(atus$employ == "Full time")
+atus$parttime       <- as.numeric(atus$employ == "Part time")
+atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
