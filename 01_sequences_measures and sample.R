@@ -115,7 +115,7 @@ passleis <- actdata$activity %in%
   c(120300:120308, 120503, 120399)
 
 actdata$actcat                        <- NA
-actdata$actcat[selfcare]              <- "Sleep & Self-care"
+actdata$actcat[selfcare]              <- "Sleep & Selfcare"
 actdata$actcat[eating]                <- "Eating"
 actdata$actcat[workedu]               <- "Work & Edu"
 actdata$actcat[allcare]               <- "Carework"
@@ -128,7 +128,7 @@ actdata$actcat <- as.character(actdata$actcat)
 # Duration summary activty variables  -- person level
 actsum <- actdata %>%
   group_by(caseid) %>%
-  summarise (selfcare    = sum(duration[actcat ==  "Sleep & Self-care"],      na.rm=TRUE),
+  summarise (selfcare    = sum(duration[actcat ==  "Sleep & Selfcare"],       na.rm=TRUE),
              eating      = sum(duration[actcat ==  "Eating"],                 na.rm=TRUE),
              workedu     = sum(duration[actcat ==  "Work & Edu"],             na.rm=TRUE),
              allcare     = sum(duration[actcat ==  "Carework"],               na.rm=TRUE),
