@@ -193,7 +193,7 @@ sum <- rec2 %>%
 
 demo <- rec2 %>%
   filter(relate == "Self") %>%
-  select(caseid, year, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+  select(caseid, year, wt06, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
                     clwkr, fullpart, uhrsworkt, spousepres)
 
 # Combine datasets
