@@ -10,14 +10,14 @@ library(cluster)
 atus2017 <- atus2017[1:500,]
 
 # Define the sequence
-## Specify the columns that represent states (24:1463)
-which( colnames(atus2017)=="1")
-which( colnames(atus2017)=="1440")
-
 ## What the states are (in this case, the activity types) and what the labels are
 ###This is in alphabetical order.
 atus2017.labels <- c("Carework", "Eating", "Housework", "Other", "Passive Leisure", "Sleep & Selfcare", "Work & Edu") # Create long labels.
 atus2017.scode <- c("C", "E", "H", "O", "P", "S", "W") # Create alphabet list. 
+
+## Specify the columns that represent states (24:1463)
+which( colnames(atus2017)=="1")
+which( colnames(atus2017)=="1440")
 
 ## Define the sequence object
 atus2017.seq <- seqdef(data = atus2017, var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017$wt06)
