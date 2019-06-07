@@ -1,7 +1,28 @@
-# Set-up
+#####################################################################################
+# Set-up the environment
 
-## Working directory
-setwd("C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences")
+## Set-up the Directories
+repoDir <- "C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences" # This should be your master project folder (Project GitRepository)
+subDir1 <- "data" # This will be the name of the folder where data output goes
+subDir2 <- "figures" # This will be the name of the folder where figures are saved
+dataDir <- file.path(repoDir, subDir1)
+figDir  <- file.path(repoDir, subDir2)
+
+## This will create sub-directory data folder in the master project directory if doesn't exist
+if (!dir.exists(dataDir)){
+  dir.create(dataDir)
+} else {
+  print("data directory already exists!")
+}
+
+## This will create sub-directory figures folder in the master project directory if doesn't exist
+if (!dir.exists(figDir)){
+  dir.create(figDir)
+} else {
+  print("figure directory already exists!")
+}
+
+setwd(file.path(repoDir)) # Set the working-directory to the master project folder
 
 ## Create a data extract using ATUS-X
 # Samples:          2003-2017 - Respondents and Household Members
@@ -21,7 +42,7 @@ library(ipumsr)
 library(tidyverse, warn.conflicts = FALSE)
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00038.xml")
+ddi <- read_ipums_ddi("atus_00038.xml") # This assumes your data extract was saved in the repoDir folder.
 data <- read_ipums_micro(ddi)
 
 ## Make the variable names lowercase
@@ -43,7 +64,7 @@ data <- data %>%
           lineno_cps8 = as.integer(lbl_clean(lineno_cps8)),
           presence   = as.integer(lbl_clean(presence)),
           day        = as_factor(lbl_clean(day)),
-          wt06       = as.integer(lbl_clean(wt06)),
+          wt06       = as.numeric(lbl_clean(wt06)), # I changed this from integer. Change back if creates errors.
           age        = as.integer(lbl_clean(age)),
           sex        = as_factor(lbl_clean(sex)),
           race       = as_factor(lbl_clean(race)),
