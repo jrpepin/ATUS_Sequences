@@ -1,6 +1,5 @@
-setwd("C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences/docs")
-
 # Libraries
+library(tidyverse)
 library(TraMineR)
 library(TraMineRextras)
 library(WeightedCluster)
@@ -51,6 +50,13 @@ seqfplot(atus2017.seq, group = atus2017$sex, border = NA, with.legend = F)
 
 ## seqiplot() for plotting all or a selection of individual sequences
 seqIplot(atus2017.seq,idxs=1:10, border=NA, with.legend = F) # The time sequence for the first 10 respondents
+seqIplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F)
+
+## Mean time in each state
+seqmtplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F, weighted=FALSE) ## The weights create an error, so set them to false.
+
+## Modal state plot
+seqmsplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F)
 
 ######################################################################################################
 # DESCRIBING SEQUENCES
@@ -59,7 +65,7 @@ seqIplot(atus2017.seq,idxs=1:10, border=NA, with.legend = F) # The time sequence
 alphabet(atus2017.seq)
 
 ## State distribution table
-seqstatd(atus2017.seq) # This doesn't tell me anything
+seqstatd(atus2017.seq) # This shows there are 1440 states (e.g., minutes)
 
 # Calculate the probability of moving from one state (activity) to another
 seqtrate(atus2017.seq)
@@ -82,25 +88,27 @@ clustergen<- hclust(as.dist(distancegen), method = "ward.D", members = atus2017$
 ## create a dendogram
 plot(clustergen)
 
+## based on the dendogram, determine number of clusters 
+ncluster5=5
+c=cutree(clustergen, k=ncluster5) 
+gen5clusters <- cutree(clustergen, k=ncluster5)
+facgen5clusters <- factor(gen5clusters, labels = c("Type1", "Type2", "Type3", "Type 4", "Type 5")) 
 
 ## plot from traminer manual - all 5 clusters together (yields 10 bars per cluster)
 
-
-
-
 #All the sequences
 png ("index.png")
-seqIplot(seqdatagen,border=NA)
+seqIplot(atus2017.seq,border=NA)
 dev.off()
 
 # The time sequence for the first respondent (can specify a range at idxs=1 command (idxs=1:5, for example))
 png ("index1.png")
-seqIplot(seqdatagen,idxs=1, border=NA)
+seqIplot(atus2017.seq,idxs=1, border=NA)
 dev.off()
 
 ### Which activities do people move between?
 ## define sequences of transitions (from user's guide)
-seqdatagen.seqe <- seqecreate(seqdatagen)
+seqdatagen.seqe <- seqecreate(atus2017.seq)
 
 ## plot the transitions
 fsubseq <- seqefsub(seqdatagen.seqe, pmin.support = 0.05)
@@ -150,14 +158,14 @@ seqHtplot(atus2017.seq, main = "Entropy index")
 submat <- seqsubm(atus2017.seq, method = "TRATE")
 dist.om1 <- seqdist(atus2017.seq, method = "OM", indel = 1, sm = submat) # This takes 3 1/2 hours to run on the full sample.
 
-library(cluster)
-
 clusterward1 <- agnes(dist.om1, diss = TRUE, method = "ward")
 
 plot(clusterward1)
 
-cl1.5 <- cutree(clusterward1, k = 5)
+wcClusterQuality()
 
+
+cl1.5 <- cutree(clusterward1, k = 5)
 cl1.5fac <- factor(cl1.5, labels = paste("Type", 1:5))
 
 seqdplot(atus2017.seq, group = cl1.5fac, border = NA)
