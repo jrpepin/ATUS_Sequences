@@ -51,6 +51,7 @@ data <- data %>% rename_all(tolower)
 ### Check-out the variable names
 names(data)
 
+#####################################################################################
 # Clean the data
 
 ## Change class from labelled
@@ -81,6 +82,7 @@ data <- data %>%
           actline    = as.integer(lbl_clean(actline)),
           activity   = as.character(lbl_clean(activity)))
 
+#####################################################################################
 # Create activity dataset
 actdata <- data %>%
   filter(rectype == 3) %>%
@@ -146,7 +148,7 @@ actdata$actcat[is.na(actdata$actcat)] <- "Other"
 
 actdata$actcat <- as.character(actdata$actcat)
 
-# Duration summary activty variables  -- person level
+## Duration summary activty variables  -- person level
 actsum <- actdata %>%
   group_by(caseid) %>%
   summarise (selfcare    = sum(duration[actcat ==  "Sleep & Selfcare"],       na.rm=TRUE),
@@ -157,6 +159,7 @@ actsum <- actdata %>%
              passleis    = sum(duration[actcat ==  "Passive Leisure"],        na.rm=TRUE),
              otheract    = sum(duration[actcat ==  "Other"],                  na.rm=TRUE))
 
+#####################################################################################
 # Create person level demographic data
 
 ## Household variable
@@ -217,6 +220,7 @@ demo <- rec2 %>%
   select(caseid, year, wt06, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
                     clwkr, fullpart, uhrsworkt, spousepres)
 
+#####################################################################################
 # Combine datasets
 atus <- reduce(list(actsum, rec1, max, sum, demo), 
                left_join, by = "caseid")
@@ -230,6 +234,7 @@ remove(max)
 remove(sum)
 remove(demo)
 
+#####################################################################################
 # Respondent demographics
 
 ## Gender
