@@ -2,7 +2,7 @@
 # Set-up the environment
 
 ## Set-up the Directories
-repoDir <- "C:/Users/Joanna/Dropbox/Repositories/ATUS_Sequences" # This should be your master project folder (Project GitRepository)
+repoDir <- "/pkg/ipums/personal/sarah/ATUS_sequences" # This should be your master project folder (Project GitRepository)
 subDir1 <- "data" # This will be the name of the folder where data output goes
 subDir2 <- "figures" # This will be the name of the folder where figures are saved
 dataDir <- file.path(repoDir, subDir1)
@@ -350,3 +350,4 @@ atus <- atus %>%
 atus$fulltime       <- as.numeric(atus$employ == "Full time")
 atus$parttime       <- as.numeric(atus$employ == "Part time")
 atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
+

@@ -193,13 +193,13 @@ qm_pam_beta_oms <- as.data.frame(range.pam.beta.oms$stats)
 ################
 ## Define objects that contains cluster memberships.
 ### cutree() cuts denodogram (tree) into groups of data
-cl1.2 <- cutree(dhd.clusterward, k = 2)
-cl1.3 <- cutree(dhd.clusterward, k = 3)
-cl1.4 <- cutree(dhd.clusterward, k = 4)
-cl1.5 <- cutree(dhd.clusterward, k = 5)
-cl1.6 <- cutree(dhd.clusterward, k = 6)
-cl1.7 <- cutree(dhd.clusterward, k = 7)
-cl1.8 <- cutree(dhd.clusterward, k = 8)
+cl1.2 <- cutree(ward.dhd, k = 2)
+cl1.3 <- cutree(ward.dhd, k = 3)
+cl1.4 <- cutree(ward.dhd, k = 4)
+cl1.5 <- cutree(ward.dhd, k = 5)
+cl1.6 <- cutree(ward.dhd, k = 6)
+cl1.7 <- cutree(ward.dhd, k = 7)
+cl1.8 <- cutree(ward.dhd, k = 8)
 
 ## Quality of a cluster  --- MAYBE TRY THIS SEPARATELY FOR MEN AND WOMEN
 ### https://rdrr.io/rforge/WeightedCluster/f/inst/doc/WeightedCluster.pdf
@@ -220,13 +220,13 @@ cl1.8 <- cutree(dhd.clusterward, k = 8)
       #### The index ranges between 0 and 1, with a small value indicating a good partition of the data.
 ### Leaving the weights off for now, but need to decide about including them (weights = atus2017$wt06)
 
-wcClusterQuality(dhd.dist, cl1.2)
-wcClusterQuality(dhd.dist, cl1.3)
-wcClusterQuality(dhd.dist, cl1.4)
-wcClusterQuality(dhd.dist, cl1.5)
-wcClusterQuality(dhd.dist, cl1.6)
-wcClusterQuality(dhd.dist, cl1.7)
-wcClusterQuality(dhd.dist, cl1.8)
+wcClusterQuality(dist.dhd, cl1.2)
+wcClusterQuality(dist.dhd, cl1.3)
+wcClusterQuality(dist.dhd, cl1.4)
+wcClusterQuality(dist.dhd, cl1.5)
+wcClusterQuality(dist.dhd, cl1.6)
+wcClusterQuality(dist.dhd, cl1.7)
+wcClusterQuality(dist.dhd, cl1.8)
 
 ####################################################################
 # 4. Further analysis of groups/distances (visual, regression based methods)

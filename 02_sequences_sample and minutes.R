@@ -34,3 +34,4 @@ atus2017 <- atus %>%
 colSums(is.na(atus2017))
 
 atus2017  <- left_join(atus2017, min2017) #Merge minute data only for cases in sample
+

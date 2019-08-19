@@ -53,3 +53,12 @@ if(!require(tidyverse)){
   library(tidyverse)
 }
 
+if(!require(TraMineRextras)){
+  install.packages("TraMineRextras")
+  library(TraMineRextras)
+}
+
+if(!require(graphicsQC)){
+  install.packages("graphicsQC")
+  library(graphicsQC)
+}
