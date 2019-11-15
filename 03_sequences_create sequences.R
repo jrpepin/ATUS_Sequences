@@ -5,9 +5,14 @@ library(WeightedCluster)
 library(cluster)
 library(graphicsQC) 
 library(foreign)
+library(tictoc)
 
 # Create a subsample so it doesn't take forever to run
 atus2017 <- atus2017[1:500,]
+
+# If want a sample for men and women separately
+atus2017.M <- subset(atus2017, sex == "Man")
+atus2017.W <- subset(atus2017, sex == "Woman")
 
 #####################################################################
 # Research Question: Are there patterns/regularities in the distribution of activity 
@@ -58,9 +63,6 @@ atus2017.seq[1:5, 300:350] # Look at sequences of first 5 respondents, minutes 3
 print(atus2017.seq[1:5, 300:350], format = "SPS") # more concise view of sequences with the SPS state-permanence representation.
 
 ## Define separate sequence objects for men and women
-atus2017.M <- atus2017 %>%  filter(sex == "Man") # Create men database
-atus2017.W <- atus2017 %>%  filter(sex == "Woman") # Create women database
-
 atus2017.M.seq <- seqdef(data = atus2017.M,var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.M$wt06) # Men sequence object
 atus2017.W.seq <- seqdef(data = atus2017.W,var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.W$wt06) # Women sequence object
 
@@ -86,7 +88,10 @@ dist.dhd[1:5, 1:5]
 ### lower the w to give more importance to the transition type than to the origin states. I think w == otto
 ### sm must be specified. It can be "INDELS" or "INDELSLOG"
 
+tic("OMS Run Time:") #Let's time this long running function!
 dist.oms <- seqdist(atus2017.seq, method="OMstran", otto = .2, sm = "INDELS")
+toc(log = TRUE)
+
 ### Warning message: at least, one indel cost does not respect the triangle inequality.
 dist.oms[1:5, 1:5]
 
@@ -233,3 +238,9 @@ wcClusterQuality(dist.dhd, cl1.8)
 
 ####################################################################
 # 5. Distances as direct indicators of dissimilarity (destandardization)
+
+
+###################################################################
+# Clean up
+tic.log(format = TRUE)
+tic.clearlog() # rest the time log
