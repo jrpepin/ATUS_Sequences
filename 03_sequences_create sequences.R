@@ -1,3 +1,6 @@
+# Save output of this file
+sink(file="data/03output.txt", append=FALSE, split=TRUE)  # for screen and log
+
 # Libraries
 library(TraMineR)
 library(TraMineRextras)
@@ -244,3 +247,6 @@ wcClusterQuality(dist.dhd, cl1.8)
 # Clean up
 tic.log(format = TRUE)
 tic.clearlog() # rest the time log
+
+sink() # Return output to the screen only
+savehistory(file="data/03history.Rhistory") # Save the commnd history
