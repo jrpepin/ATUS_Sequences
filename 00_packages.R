@@ -62,3 +62,8 @@ if(!require(graphicsQC)){
   install.packages("graphicsQC")
   library(graphicsQC)
 }
+
+if(!require(tictoc)){
+  install.packages("tictoc")
+  library(tictoc)
+}
