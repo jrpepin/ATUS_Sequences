@@ -8,7 +8,7 @@ library(foreign)
 library(tictoc)
 
 # Create a subsample so it doesn't take forever to run
-atus2017 <- atus2017[1:500,]
+# atus2017 <- atus2017[1:500,]
 
 # If want a sample for men and women separately
 atus2017.M <- subset(atus2017, sex == "Man")
