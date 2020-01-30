@@ -2,7 +2,10 @@
 # Set-up the environment
 
 ## Set-up the Directories
-repoDir <- "/pkg/ipums/personal/sarah/ATUS_sequences" # This should be your master project folder (Project GitRepository)
+# SARAH'S 
+# repoDir <- "/pkg/ipums/personal/sarah/ATUS_sequences" # This should be your master project folder (Project GitRepository)
+repoDir <- "C:/Users/Joanna/Dropbox/Repositories/ATUS_sequences" # This should be your master project folder (Project GitRepository)
+
 subDir1 <- "data" # This will be the name of the folder where data output goes
 subDir2 <- "figures" # This will be the name of the folder where figures are saved
 dataDir <- file.path(repoDir, subDir1)
@@ -273,8 +276,7 @@ atus <- atus %>%
       TRUE                                            ~  NA_character_ 
     ))
 
-atus$marstat <- factor(atus$marstat, ordered = TRUE, 
-                       levels = c("Married", "Cohabiting", "Never married", "Divorced/Separated/Widowed"))
+atus$marstat <- factor(atus$marstat, levels = c("Married", "Cohabiting", "Never married", "Divorced/Separated/Widowed"), ordered = FALSE )
 
 ## Race/Ethnicity 
 atus <- atus %>%
@@ -289,7 +291,7 @@ atus <- atus %>%
       TRUE                                              ~  NA_character_ 
     ))
 
-atus$raceethnicity <- factor(atus$raceethnicity, ordered = TRUE, 
+atus$raceethnicity <- factor(atus$raceethnicity, ordered = FALSE, 
                        levels = c("White", "Black", "Asian", "Hispanic", "Other race"))
 
 atus$white       <- as.numeric(atus$raceethnicity == "White")
@@ -311,6 +313,9 @@ atus <- atus %>%
       educ >= 40 & educ <= 43 ~ "College",
       TRUE                    ~ NA_character_ 
     ))
+
+atus$edcat <- factor(atus$edcat, ordered = FALSE, 
+                             levels = c("Less than high school", "High school", "Some college", "College"))
 
 atus$lths       <- as.numeric(atus$edcat == "Less than high school")
 atus$highschool <- as.numeric(atus$edcat == "High school")
@@ -350,4 +355,3 @@ atus <- atus %>%
 atus$fulltime       <- as.numeric(atus$employ == "Full time")
 atus$parttime       <- as.numeric(atus$employ == "Part time")
 atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
-

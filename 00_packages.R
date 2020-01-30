@@ -46,8 +46,6 @@ if(!require(ipumsr)){
 }
 
 
-
-
 if(!require(tidyverse)){
   install.packages("tidyverse")
   library(tidyverse)

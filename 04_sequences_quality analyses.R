@@ -118,8 +118,11 @@ qmplot <- qmdata %>%
   filter((stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC") & clusters <=10) %>%
     ggplot(aes(x = clusters, y = value, color = approach)) +
     facet_grid(vars(algorithm), vars(stat)) +
-      geom_line(lwd = 1)
-
+      geom_line(lwd = 1) +
+  theme_minimal() +
+  ggtitle("Figure 2. Quality Measures for Sequence Analysis Approach") +
+  labs(x = "Number of clusters", y = "Values")
+  
 qmplot
 
 ggsave("figures/qmplot.png", qmplot, width = 24, height = 16, units = "cm", dpi = 300)

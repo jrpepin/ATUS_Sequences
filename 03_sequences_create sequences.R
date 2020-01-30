@@ -11,11 +11,11 @@ library(foreign)
 library(tictoc)
 
 # Create a subsample so it doesn't take forever to run
-# atus2017 <- atus2017[1:500,]
+  # atus2017 <- data[atus2017(nrow(atus2017), 500), ]
 
 # If want a sample for men and women separately
-atus2017.M <- subset(atus2017, sex == "Man")
-atus2017.W <- subset(atus2017, sex == "Woman")
+  # atus2017.M <- subset(atus2017, sex == "Man")
+  # atus2017.W <- subset(atus2017, sex == "Woman")
 
 #####################################################################
 # Research Question: Are there patterns/regularities in the distribution of activity 
@@ -39,14 +39,14 @@ atus2017.W <- subset(atus2017, sex == "Woman")
 which( colnames(atus2017)=="1") # 1 = minute 1 of the time diary 
 which( colnames(atus2017)=="1440") #1440 = minute 1440 of the time diary
 
-seqstatl(atus2017, 24:1463) #Lists the states of the sequences
+seqstatl(atus2017, 34:1473) #Lists the states of the sequences
 
 ## Define the labels for the states. (These are in alphabetical order.)
 atus2017.labels <- c("Carework", "Eating", "Housework", "Other", "Passive Leisure", "Sleep & Selfcare", "Work & Edu") # Create long labels.
 atus2017.scode <- c("C", "E", "H", "O", "P", "S", "W") # Create alphabet list. 
 
 ## Define the data as sequence data and create a sequence object
-atus2017.seq <- seqdef(data = atus2017, var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017$wt06)
+atus2017.seq <- seqdef(data = atus2017, var = 34:1473, states = atus2017.scode, labels = atus2017.labels, weights = atus2017$wt06)
 ### un-used xtstep option sets the step between displayed tick-marks and labels on the x-axis of state sequence plots.
 
 ## Setting a user defined color palette to be used in visuals
@@ -66,8 +66,8 @@ atus2017.seq[1:5, 300:350] # Look at sequences of first 5 respondents, minutes 3
 print(atus2017.seq[1:5, 300:350], format = "SPS") # more concise view of sequences with the SPS state-permanence representation.
 
 ## Define separate sequence objects for men and women
-atus2017.M.seq <- seqdef(data = atus2017.M,var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.M$wt06) # Men sequence object
-atus2017.W.seq <- seqdef(data = atus2017.W,var = 24:1463, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.W$wt06) # Women sequence object
+ # atus2017.M.seq <- seqdef(data = atus2017.M,var = 34:1473, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.M$wt06) # Men sequence object
+ # atus2017.W.seq <- seqdef(data = atus2017.W,var = 34:1473, states = atus2017.scode, labels = atus2017.labels, weights = atus2017.W$wt06) # Women sequence object
 
 ####################################################################
 # 1. Choose the measure of dissimilarity 
@@ -91,9 +91,11 @@ dist.dhd[1:5, 1:5]
 ### lower the w to give more importance to the transition type than to the origin states. I think w == otto
 ### sm must be specified. It can be "INDELS" or "INDELSLOG"
 
-tic("OMS Run Time:") #Let's time this long running function!
-dist.oms <- seqdist(atus2017.seq, method="OMstran", otto = .2, sm = "INDELS")
-toc(log = TRUE)
+### Marking this out and using Sarah's instead!
+dist.oms <- readRDS("data/dist_oms.rds")
+  # tic("OMS Run Time:") #Let's time this long running function!
+  # dist.oms <- seqdist(atus2017.seq, method="OMstran", otto = .2, sm = "INDELS")
+  # toc(log = TRUE)
 
 ### Warning message: at least, one indel cost does not respect the triangle inequality.
 dist.oms[1:5, 1:5]
@@ -209,10 +211,10 @@ cl1.6 <- cutree(ward.dhd, k = 6)
 cl1.7 <- cutree(ward.dhd, k = 7)
 cl1.8 <- cutree(ward.dhd, k = 8)
 
-## Quality of a cluster  --- MAYBE TRY THIS SEPARATELY FOR MEN AND WOMEN
+## Quality of a cluster
 ### https://rdrr.io/rforge/WeightedCluster/f/inst/doc/WeightedCluster.pdf
 ### Look at PBC, ASW, and HC test statistics
-  #### PBC- Point Biserial Correlation. (measures the strength of association of two variables 
+  #### PBC- Point Biserial Correlation. (measures the strength of association of two variables) 
   #### Correlation between the given distance matrice and a distance which equal to zero for individuals in the same cluster and one otherwise.
       #### a single measure ranging from -1 to +1, where -1 indicates a perfect negative association, 
       #### +1 indicates a perfect positive association and 0 indicates no association at all.)
@@ -245,8 +247,9 @@ wcClusterQuality(dist.dhd, cl1.8)
 
 ###################################################################
 # Clean up
-tic.log(format = TRUE)
-tic.clearlog() # rest the time log
+## Use these two lines if running the dist.oms and timer
+  # tic.log(format = TRUE)
+  # tic.clearlog() # rest the time log
 
 sink() # Return output to the screen only
 savehistory(file="data/03history.Rhistory") # Save the commnd history
