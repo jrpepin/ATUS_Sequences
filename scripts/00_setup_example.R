@@ -5,6 +5,7 @@
 #------------------------------------------------------------------------------------
 
 # Users should create a personal setup file. 
+# Add the name of this setup file to the gitignore file.
 
 #####################################################################################
 # Set-up the environment

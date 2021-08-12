@@ -7,14 +7,18 @@
 ## Install and load required packages
 #####################################################################################
 
+# dependencies include Rtools and devtools
+
 # This file is for installing required packages for sequence and cluster analysis, 
 # as well as further calculations. 
 
+## for relative file paths
 if(!require(here)){
   install.packages("here")
   library(here)
 }
 
+## to install IPUMS data
 if(!require(ipumsr)){
   install.packages("ipumsr")
   library(ipumsr)
@@ -26,11 +30,21 @@ if(!require(reportr)){
   library(reportr)
 }
 
+
+# use variable labels
+if(!require(sjlabelled)){
+  install.packages("sjlabelled")
+  library(sjlabelled)
+}
+
+
+## for data processing
 if(!require(tidyverse)){
   install.packages("tidyverse")
   library(tidyverse)
 }
 
+# for sequence analyses
 if(!require(TraMineR)){
   install.packages("TraMineR")
   library(TraMineR)
@@ -66,22 +80,23 @@ if(!require(readr)){
   library(readr)
 }
 
-
 if(!require(TraMineRextras)){
   install.packages("TraMineRextras")
   library(TraMineRextras)
 }
 
 if(!require(graphicsQC)){
-  install.packages("graphicsQC")
-  library(graphicsQC)
+  install.packages("graphicsQC") # not available for this version of R......
+  library(graphicsQC) # Consider using package ‘gdiff’ instead.
 }
 
+# report run time of R scripts
 if(!require(tictoc)){
   install.packages("tictoc")
   library(tictoc)
 }
 
+# declare which package commands to use if same name function
 if(!require(conflicted)){
   devtools::install_github("r-lib/conflicted")
   library(conflicted)

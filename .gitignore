@@ -7,4 +7,5 @@
 *.RData
 .Rproj.user
 00_setup_joanna.R
+00_setup_jpepin.R
 *.Rproj

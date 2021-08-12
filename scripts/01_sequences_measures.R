@@ -13,35 +13,20 @@ data <- read_ipums_micro(ddi) %>%
 names(data)
 
 #####################################################################################
-# Clean the data
+# Change class of variables
 
-## Change class from labelled
-data <- data %>%
-  mutate( rectype    = as.integer(lbl_clean(rectype)),
-          year       = as.integer(lbl_clean(year)),
-          caseid     = as.character(lbl_clean(caseid)),
-          hh_size    = as.integer(lbl_clean(hh_size)),
-          pernum     = as.integer(lbl_clean(pernum)),
-          lineno     = as.integer(lbl_clean(lineno)),
-          lineno_cps8 = as.integer(lbl_clean(lineno_cps8)),
-          presence   = as.integer(lbl_clean(presence)),
-          day        = as_factor(lbl_clean(day)),
-          wt06       = as.numeric(lbl_clean(wt06)), # I changed this from integer. Change back if creates errors.
-          age        = as.integer(lbl_clean(age)),
-          sex        = as_factor(lbl_clean(sex)),
-          race       = as_factor(lbl_clean(race)),
-          hispan     = as_factor(lbl_clean(hispan)),
-          marst      = as_factor(lbl_clean(marst)),
-          relate     = as_factor(lbl_clean(relate)),
-          educ       = as.integer(lbl_clean(educ)),
-          educyrs    = as.integer(lbl_clean(educyrs)),
-          empstat    = as.character(lbl_clean(empstat)),
-          clwkr      = as.character(lbl_clean(clwkr)),
-          fullpart   = as.character(lbl_clean(fullpart)),
-          uhrsworkt  = as.integer(lbl_clean(uhrsworkt)),
-          spousepres = as_factor(lbl_clean(spousepres)),
-          actline    = as.integer(lbl_clean(actline)),
-          activity   = as.character(lbl_clean(activity)))
+fcols <- c("day", "sex", "race", "hispan", "marst", "relate", "spousepres")
+
+icols <- c("rectype", "year", "hh_size", "pernum", "lineno", "lineno_cps8",
+           "presence", "age", "educ", "educyrs", "actline", "uhrsworkt",
+           "wt06", "wt20") #  I changed this from numeric. Change back if creates errors.
+
+ccols <- c("caseid", "empstat", "clwkr", "fullpart", "activity")
+
+data[fcols] <- lapply(data[fcols], as_label)
+data[icols] <- lapply(data[icols], as.integer)
+data[ccols] <- lapply(data[ccols], as.character)
+
 
 #####################################################################################
 # Create activity dataset
@@ -133,7 +118,7 @@ colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
 ## Household member demographics
 rec2 <- data %>% 
   filter(rectype == 2) %>%
-  select(caseid, year, pernum, lineno, lineno_cps8, presence, day, wt06, 
+  select(caseid, year, pernum, lineno, lineno_cps8, presence, day, wt06, wt20,
          age, sex, race, hispan, marst, relate, educ, educyrs, empstat, clwkr, fullpart, uhrsworkt, spousepres)
 
 ### who lives in household
@@ -178,7 +163,7 @@ sum <- rec2 %>%
 
 demo <- rec2 %>%
   filter(relate == "Self") %>%
-  select(caseid, year, wt06, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+  select(caseid, year, wt06, wt20, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
                     clwkr, fullpart, uhrsworkt, spousepres)
 
 #####################################################################################
@@ -187,7 +172,7 @@ atus <- reduce(list(actsum, rec1, max, sum, demo),
                left_join, by = "caseid")
 
 head(atus, n = 5)
-# remove unnecessary databases
+# remove unnecessary dataframes
 remove(actsum)
 remove(rec1)
 remove(rec2)
