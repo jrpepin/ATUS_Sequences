@@ -1,55 +1,13 @@
-#####################################################################################
-# Set-up the environment
-
-## Set-up the Directories
-# SARAH'S 
-# repoDir <- "/pkg/ipums/personal/sarah/ATUS_sequences" # This should be your master project folder (Project GitRepository)
-repoDir <- "C:/Users/Joanna/Dropbox/Repositories/ATUS_sequences" # This should be your master project folder (Project GitRepository)
-
-subDir1 <- "data" # This will be the name of the folder where data output goes
-subDir2 <- "figures" # This will be the name of the folder where figures are saved
-dataDir <- file.path(repoDir, subDir1)
-figDir  <- file.path(repoDir, subDir2)
-
-## This will create sub-directory data folder in the master project directory if doesn't exist
-if (!dir.exists(dataDir)){
-  dir.create(dataDir)
-} else {
-  print("data directory already exists!")
-}
-
-## This will create sub-directory figures folder in the master project directory if doesn't exist
-if (!dir.exists(figDir)){
-  dir.create(figDir)
-} else {
-  print("figure directory already exists!")
-}
-
-setwd(file.path(repoDir)) # Set the working-directory to the master project folder
-
-## Create a data extract using ATUS-X
-# Samples:          2003-2017 - Respondents and Household Members
-# Variables:
-# "RECTYPE"       "YEAR"          "CASEID"        "PERNUM"        "LINENO         "LINENO_CPS8"   "PRESENCE"      "DAY"
-# "WT06"          "AGE"           "SEX"           "RACE"          "HISPAN"        "MARST"         "RELATE"        "EDUC"
-# "EDUCYRS"       "EMPSTAT"       "CLWKR"         "FULLPART"      "UHRSWORKT"     "SPOUSEPRES"    "HH_SIZE"       
-# "ACTIVITY"      "DURATION"      "ACTLINE"       "START"         "STOP"
-
-
-## Set up instructions for importing the data 
-# https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html
-# Updated ATUS Data
-
-## Load libraries
-library(ipumsr)
-library(tidyverse, warn.conflicts = FALSE)
+#------------------------------------------------------------------------------------
+# ATUS SEQUENCE ANALYSIS
+# 01_sequences_measures.R
+# Joanna R. Pepin & Sarah Flood
+#------------------------------------------------------------------------------------
 
 ## Load ATUS Data into R
-ddi <- read_ipums_ddi("atus_00038.xml") # This assumes your data extract was saved in the repoDir folder.
-data <- read_ipums_micro(ddi)
-
-## Make the variable names lowercase
-data <- data %>% rename_all(tolower)
+ddi  <- read_ipums_ddi(file.path(dataDir, data_atus))
+data <- read_ipums_micro(ddi) %>%
+  rename_all(tolower) # Make the variable names lowercase
 
 ### Check-out the variable names
 names(data)

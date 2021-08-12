@@ -5,3 +5,6 @@
 *.xml
 *.Rhistory
 *.RData
+.Rproj.user
+00_setup_joanna.R
+*.Rproj
