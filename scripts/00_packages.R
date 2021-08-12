@@ -44,7 +44,26 @@ if(!require(tidyverse)){
   library(tidyverse)
 }
 
-# for sequence analyses
+## for survey weights
+if(!require(survey)){
+  install.packages("survey")
+  library(survey)
+}
+
+## create descriptive tables
+if(!require(tableone)){
+  install.packages("tableone")
+  library(tableone)
+}
+
+## create marginal estimates
+if(!require(ggeffects)){
+  install.packages("ggeffects")
+  library(ggeffects)
+}
+
+
+## for sequence analyses
 if(!require(TraMineR)){
   install.packages("TraMineR")
   library(TraMineR)

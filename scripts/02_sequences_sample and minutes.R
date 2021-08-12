@@ -1,31 +1,31 @@
-# Create 2017 activity data
-min2017 <- actdata %>%
-  filter(year == 2017)
+#------------------------------------------------------------------------------------
+# ATUS SEQUENCE ANALYSIS
+# 02_sample and minutes.R
+# Joanna R. Pepin & Sarah Flood
+#------------------------------------------------------------------------------------
 
-## Create minute record
-min2017 <- min2017[order(min2017$caseid, min2017$actline),]
+# Create minute record --------------------------------------------------------------
+mindata <- actdata # create a new dataset
 
-min2017  <- min2017  %>% 
+mindata <- mindata[order(mindata$caseid, mindata$actline),]
+
+mindata  <- mindata  %>% 
   group_by(caseid)   %>%
-  uncount(duration)
-
-min2017 <- min2017 %>% 
-  group_by(caseid) %>%
+  uncount(duration)  %>%
   mutate(minute = row_number())
 
-summary(min2017$minute) #Max should be 1440
+summary(mindata$minute) #Max should be 1440
 
 ## Create wide minute file
-min2017 <- min2017 %>%
+mindata <- mindata %>%
   select(caseid, minute, actcat) %>%
   spread(minute, actcat)
 
-# Create 2017 demographic data (person level)
-atus2017p <- atus %>%
-  filter(year == 2017 &
-           employ == "Full time" &
-           hhchildu18 == 1) %>%
-  select(caseid, year, wt06, selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
+# Create analytic sample (person level)
+atussample <- atus %>%
+  filter(employ == "Full time" &
+         hhchildu18 == 1) %>%
+  select(caseid, year, wt20, selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
          sex, marstat, raceethnicity, edcat, 
          exfamdum, numhhchild, kidu2dum, kid2to5, age, weekend,
          married, nevmar, umpartner, divsep,
@@ -33,23 +33,22 @@ atus2017p <- atus %>%
          white, black, asian, hispanic, otherrace)
 
 ## Missing data  
-colSums(is.na(atus2017p))
+colSums(is.na(atussample))
 
-atus2017  <- left_join(atus2017p, min2017) #Merge minute data only for cases in sample
+seqdata  <- left_join(atussample, mindata) #Merge minute data only for cases in sample
 
 ##################################
 # Sample characteristics
-library("survey")
-library("tableone")
+
 ## Create Table 1
 # Create a variable list which we want in Table 1
 
 ## Set as survey data
-dataSvy <- svydesign(ids = ~1, weights = ~ wt06, data = atus2017p)
+dataSvy <- svydesign(ids = ~1, weights = ~ wt20, data = atussample)
 summary(dataSvy)
 
 ## Number of observations (unweighted)
-table(atus2017p$sex)
+table(atussample$sex)
 
 ### Create Table 1 variable list
 catVars <- c("married", "umpartner", "nevmar", "divsep", 
@@ -68,41 +67,41 @@ table1_svy
 
 ####################
 ## Mean minutes of actitives by gender
-library(ggeffects)
+
 
 #Selfcare
 lm_selfcare <- lm(selfcare  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atus2017p, weight=wt06)
+                  data = atussample, weight=wt20)
 pselfcare   <- ggeffect(lm_selfcare, terms = "sex")
 
 #Eating
 lm_eating <- lm(eating  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atus2017p, weight=wt06)
+                  data = atussample, weight=wt20)
 peating   <- ggeffect(lm_eating, terms = "sex")
 
 #Work & Education
 lm_workedu <- lm(workedu  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                data = atus2017p, weight=wt06)
+                data = atussample, weight=wt20)
 pworkedu   <- ggeffect(lm_workedu, terms = "sex")
 
 #Carework
 lm_allcare <- lm(allcare  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                 data = atus2017p, weight=wt06)
+                 data = atussample, weight=wt20)
 pallcare   <- ggeffect(lm_allcare, terms = "sex")
 
 #Housework
 lm_hwork <- lm(hwork  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                 data = atus2017p, weight=wt06)
+                 data = atussample, weight=wt20)
 phwork   <- ggeffect(lm_hwork, terms = "sex")
 
 #Passive Leisure
 lm_passleis <- lm(passleis  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-               data = atus2017p, weight=wt06)
+               data = atussample, weight=wt20)
 ppassleis   <- ggeffect(lm_passleis, terms = "sex")
 
 #Other Activities
 lm_otheract <- lm(otheract  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atus2017p, weight=wt06)
+                  data = atussample, weight=wt20)
 potheract   <- ggeffect(lm_otheract, terms = "sex")
 
 ## Label the group values as the activity
