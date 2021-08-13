@@ -150,7 +150,7 @@ fig1 <- pred %>%
         plot.title    = element_text(size = 12, face = "bold"),
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()) +
-  ggtitle("Figure 1. Average Time Parents Spend Per Day in Each Activity") +
+  ggtitle("Figure 1. Average Time Parents Spend Per Day in _________") +
   labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day",
        caption = "Source: American Time Use Surveys (2019/2020) \n Models control for education, race-ethnicity, marital status, extra adults,
        number of household kids, kids under 2, age, weekend diary day\nDue to COVID-19 pandemic, data range: May through December in 2019 vs. 2020")
