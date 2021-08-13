@@ -37,7 +37,6 @@ if(!require(sjlabelled)){
   library(sjlabelled)
 }
 
-
 ## for data processing
 if(!require(tidyverse)){
   install.packages("tidyverse")
@@ -104,10 +103,10 @@ if(!require(TraMineRextras)){
   library(TraMineRextras)
 }
 
-if(!require(graphicsQC)){
-  install.packages("graphicsQC") # not available for this version of R......
-  library(graphicsQC) # Consider using package ‘gdiff’ instead.
-}
+# if(!require(graphicsQC)){
+  # install.packages("graphicsQC") # not available for this version of R......
+  # library(graphicsQC) # Consider using package ‘gdiff’ instead.
+# }
 
 # report run time of R scripts
 if(!require(tictoc)){
@@ -126,4 +125,3 @@ conflict_scout() # Identify the conflicts
 conflict_prefer("filter", "dplyr")
 conflict_prefer("lag", "dplyr")
 conflict_prefer("Position", "ggplot2")
-

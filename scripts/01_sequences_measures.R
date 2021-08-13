@@ -17,13 +17,13 @@ names(data)
 
 fcols <- c("day", "sex", "race", "hispan", "marst", "relate", "spousepres")
 
-icols <- c("rectype", "year", "hh_size", "pernum", "lineno", "lineno_cps8",
+icols <- c("rectype", "year", "month", "hh_size", "pernum", "lineno", "lineno_cps8",
            "presence", "age", "educ", "educyrs", "actline", "uhrsworkt",
            "wt06", "wt20") #  I changed this from numeric. Change back if creates errors.
 
 ccols <- c("caseid", "empstat", "clwkr", "fullpart", "activity")
 
-data[fcols] <- lapply(data[fcols], as_label)
+data[fcols] <- lapply(data[fcols], sjlabelled::as_label)
 data[icols] <- lapply(data[icols], as.integer)
 data[ccols] <- lapply(data[ccols], as.character)
 
@@ -118,7 +118,7 @@ colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
 ## Household member demographics
 rec2 <- data %>% 
   filter(rectype == 2) %>%
-  select(caseid, year, pernum, lineno, lineno_cps8, presence, day, wt06, wt20,
+  select(caseid, year, month, pernum, lineno, lineno_cps8, presence, day, wt06, wt20,
          age, sex, race, hispan, marst, relate, educ, educyrs, empstat, clwkr, fullpart, uhrsworkt, spousepres)
 
 ### who lives in household
@@ -163,7 +163,7 @@ sum <- rec2 %>%
 
 demo <- rec2 %>%
   filter(relate == "Self") %>%
-  select(caseid, year, wt06, wt20, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
+  select(caseid, year, month, wt06, wt20, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
                     clwkr, fullpart, uhrsworkt, spousepres)
 
 #####################################################################################

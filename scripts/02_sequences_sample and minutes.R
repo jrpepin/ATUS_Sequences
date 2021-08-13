@@ -22,10 +22,12 @@ mindata <- mindata %>%
   spread(minute, actcat)
 
 # Create analytic sample (person level)
+
 atussample <- atus %>%
-  filter(employ == "Full time" &
-         hhchildu18 == 1) %>%
-  select(caseid, year, wt20, selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
+  filter(hhchildu18 == 1 &  ## parents
+         month      >= 5) %>% ## diaries from May to Dec.
+  select(caseid, year, month, wt20, 
+         selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
          sex, marstat, raceethnicity, edcat, 
          exfamdum, numhhchild, kidu2dum, kid2to5, age, weekend,
          married, nevmar, umpartner, divsep,
@@ -66,41 +68,41 @@ table1_svy <- svyCreateTableOne(vars = catVars, data = dataSvy, strata = c("sex"
 table1_svy
 
 ####################
-## Mean minutes of actitives by gender
+## Mean minutes of activities by gender
 
 
 #Selfcare
-lm_selfcare <- lm(selfcare  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_selfcare <- lm(selfcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
 pselfcare   <- ggeffect(lm_selfcare, terms = "sex")
 
 #Eating
-lm_eating <- lm(eating  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_eating <- lm(eating  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
 peating   <- ggeffect(lm_eating, terms = "sex")
 
 #Work & Education
-lm_workedu <- lm(workedu  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_workedu <- lm(workedu  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                 data = atussample, weight=wt20)
 pworkedu   <- ggeffect(lm_workedu, terms = "sex")
 
 #Carework
-lm_allcare <- lm(allcare  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_allcare <- lm(allcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                  data = atussample, weight=wt20)
 pallcare   <- ggeffect(lm_allcare, terms = "sex")
 
 #Housework
-lm_hwork <- lm(hwork  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_hwork <- lm(hwork  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                  data = atussample, weight=wt20)
 phwork   <- ggeffect(lm_hwork, terms = "sex")
 
 #Passive Leisure
-lm_passleis <- lm(passleis  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_passleis <- lm(passleis  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                data = atussample, weight=wt20)
 ppassleis   <- ggeffect(lm_passleis, terms = "sex")
 
 #Other Activities
-lm_otheract <- lm(otheract  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+lm_otheract <- lm(otheract  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
 potheract   <- ggeffect(lm_otheract, terms = "sex")
 
@@ -142,9 +144,9 @@ fig1 <- pred %>%
   geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2,
                 position=position_dodge(.9), color="grey") +
   theme_minimal() +
-  ggtitle("Figure 1. Average Time Employed Parents Spend Per Day in Each Activity") +
+  ggtitle("Figure 1. Average Time Parents Spend Per Day in Each Activity") +
   labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day with model controls",
-       caption = "Source: American Time Use Surveys (2017) \n Models control for education, race-ethnicity, marital status, extra adults,
+       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for year, education, race-ethnicity, marital status, extra adults,
        number of household kids, kids under 2, age, weekend diary day") +
   theme(plot.subtitle = element_text(size = 11, vjust = 1),
         plot.caption  = element_text(vjust = 1, size =8, colour = "grey"), 
@@ -158,4 +160,4 @@ fig1 <- pred %>%
 
 fig1
 
-ggsave("figures/sequences_fig1.png", fig1, height = 6, width = 8, dpi = 300)
+ggsave(file.path(outDir, "sequences_fig1.png"), fig1, height = 6, width = 8, dpi = 300)
