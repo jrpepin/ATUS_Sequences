@@ -21,17 +21,18 @@ mindata <- mindata %>%
   select(caseid, minute, actcat) %>%
   spread(minute, actcat)
 
-# Create analytic sample (person level)
+# Create analytic sample (person level) --------------------------------------------
 
 atussample <- atus %>%
   filter(hhchildu18 == 1 &  ## parents
          month      >= 5) %>% ## diaries from May to Dec.
   select(caseid, year, month, wt20, 
          selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
-         sex, marstat, raceethnicity, edcat, 
+         sex, marstat, raceethnicity, edcat, employ, 
          exfamdum, numhhchild, kidu2dum, kid2to5, age, weekend,
          married, nevmar, umpartner, divsep,
          lths, highschool, somecol, baormore, 
+         fulltime, parttime, unemployed,
          white, black, asian, hispanic, otherrace)
 
 ## Missing data  
@@ -39,11 +40,8 @@ colSums(is.na(atussample))
 
 seqdata  <- left_join(atussample, mindata) #Merge minute data only for cases in sample
 
-##################################
-# Sample characteristics
 
-## Create Table 1
-# Create a variable list which we want in Table 1
+# Sample characteristics --------------------------------------------------------------
 
 ## Set as survey data
 dataSvy <- svydesign(ids = ~1, weights = ~ wt20, data = atussample)
@@ -55,7 +53,8 @@ table(atussample$sex)
 ### Create Table 1 variable list
 catVars <- c("year", "married", "umpartner", "nevmar", "divsep", 
              "white", "black", "asian", "hispanic", "otherrace", 
-             "lths", "highschool", "somecol", "baormore",              
+             "lths", "highschool", "somecol", "baormore",
+             "fulltime", "parttime", "unemployed",
              "exfamdum", "numhhchild", "kidu2dum", "kid2to5", 
              "age", "weekend")
 
@@ -67,67 +66,51 @@ table1_svy
 table1_svy <- svyCreateTableOne(vars = catVars, data = dataSvy, strata = c("sex"), test = F)
 table1_svy
 
-####################
-## Mean minutes of activities by gender
+# Predicted minutes of activities by gender * year with controls -----------------
+
+models  <- list() # create a list to store the linear models
+dvnames <- list("selfcare", "eating", "workedu", "allcare", "hwork", "passleis", "otheract")
+ivnames <- c("year", "sex", "marstat", "raceethnicity", 
+             "edcat", "employ", "exfamdum", 
+             "numhhchild", "kidu2dum", "kid2to5", 
+             "age", "weekend")
+
+## create a function to loop over dv and ivs
+for (y in dvnames){
+  form <- as.formula(paste(y, 
+                           paste(ivnames, collapse = " + "), 
+                           sep = " ~ "))
+  models[[y]] <- lm(form, data = atussample, weight=wt20) 
+}
+
+## create a list of the linear models
+lapply(models, summary) 
 
 
-#Selfcare
-lm_selfcare <- lm(selfcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atussample, weight=wt20)
-pselfcare   <- ggeffect(lm_selfcare, terms = c("year", "sex"))
+## Create a list of Predicted minutes
+means <- ggeffect(models, terms = c("year", "sex")) 
+meansDF <- bind_rows(means, .id = "column_label") # turn the list into a df
 
-#Eating
-lm_eating <- lm(eating  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atussample, weight=wt20)
-peating   <- ggeffect(lm_eating, terms = c("year", "sex"))
+## Rename gender variables as parents
+levels(meansDF$group)[levels(meansDF$group)=="Man"] <- "Fathers"
+levels(meansDF$group)[levels(meansDF$group)=="Woman"] <- "Mothers"
 
-#Work & Education
-lm_workedu <- lm(workedu  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                data = atussample, weight=wt20)
-pworkedu   <- ggeffect(lm_workedu, terms = c("year", "sex"))
+## Order and label activity factors
+meansDF$act <- as.factor(meansDF$column_label)
 
-#Carework
-lm_allcare <- lm(allcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                 data = atussample, weight=wt20)
-pallcare   <- ggeffect(lm_allcare, terms = c("year", "sex"))
+levels(meansDF$act)[levels(meansDF$act)=="allcare"]  <- "Carework"
+levels(meansDF$act)[levels(meansDF$act)=="eating"]   <- "Eating"
+levels(meansDF$act)[levels(meansDF$act)=="hwork"]    <- "Housework"
+levels(meansDF$act)[levels(meansDF$act)=="otheract"] <- "Other"
+levels(meansDF$act)[levels(meansDF$act)=="passleis"] <- "Passive Leisure"
+levels(meansDF$act)[levels(meansDF$act)=="selfcare"] <- "Self-care"
+levels(meansDF$act)[levels(meansDF$act)=="workedu"]  <- "Work & Education"
 
-#Housework
-lm_hwork <- lm(hwork  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                 data = atussample, weight=wt20)
-phwork   <- ggeffect(lm_hwork, terms = c("year", "sex"))
+meansDF$act <- ordered(meansDF$act, levels = c("Self-care", "Work & Education", "Housework", "Carework", "Passive Leisure", "Eating", "Other"))
 
-#Passive Leisure
-lm_passleis <- lm(passleis  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-               data = atussample, weight=wt20)
-ppassleis   <- ggeffect(lm_passleis, terms = c("year", "sex"))
+# Graph it ------------------------------------------------------------------
 
-#Other Activities
-lm_otheract <- lm(otheract  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                  data = atussample, weight=wt20)
-potheract   <- ggeffect(lm_otheract, terms = c("year", "sex"))
-
-## Create an activity identity variable
-pallcare$act  <- "Carework"
-peating$act   <- "Eating"
-phwork$act    <- "Housework"
-potheract$act <- "Other"
-ppassleis$act <- "Passive Leisure"
-pselfcare$act <- "Self-care"
-pworkedu$act  <- "Work & Education"
-
-# Combine the datatables
-pred <- rbind(pallcare, peating, phwork, potheract, ppassleis, pselfcare, pworkedu)
-
-# Rename gender variables as parents
-levels(pred$group)[levels(pred$group)=="Man"] <- "Fathers"
-levels(pred$group)[levels(pred$group)=="Woman"] <- "Mothers"
-
-# Order the activity factors
-pred$act <- ordered(pred$act, levels = c("Self-care", "Work & Education", "Housework", "Carework", "Passive Leisure", "Eating", "Other"))
-
-## Graph it
-
-fig1 <- pred %>%
+fig1 <- meansDF %>%
   ggplot(aes(group, predicted, fill = x, label = round(predicted, 0))) +
   geom_col(width = 0.7, position   =  position_dodge(.8)) +
   facet_grid(~act) +
@@ -136,7 +119,7 @@ fig1 <- pred %>%
   geom_text(. %>% filter(act  == "Work & Education" & group == "Fathers"), 
             mapping  = aes(label   =  x, 
                            color    = x,
-                           y        = 370),
+                           y        = 300),
             position = position_dodge(1.5),
             size     = 3,
             fontface = "bold") +
@@ -152,7 +135,7 @@ fig1 <- pred %>%
         panel.grid.major.x = element_blank()) +
   ggtitle("Figure 1. Average Time Parents Spend Per Day in _________") +
   labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day",
-       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for education, race-ethnicity, marital status, extra adults,
+       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for education, employment, race-ethnicity, marital status, extra adults,
        number of household kids, kids under 2, age, weekend diary day\nDue to COVID-19 pandemic, data range: May through December in 2019 vs. 2020")
 
 fig1
