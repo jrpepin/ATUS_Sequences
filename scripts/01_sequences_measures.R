@@ -298,3 +298,7 @@ atus <- atus %>%
 atus$fulltime       <- as.numeric(atus$employ == "Full time")
 atus$parttime       <- as.numeric(atus$employ == "Part time")
 atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
+
+## Year
+atus$year       <- as.factor(atus$year)
+

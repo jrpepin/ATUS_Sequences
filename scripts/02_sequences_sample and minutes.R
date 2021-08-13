@@ -53,7 +53,7 @@ summary(dataSvy)
 table(atussample$sex)
 
 ### Create Table 1 variable list
-catVars <- c("married", "umpartner", "nevmar", "divsep", 
+catVars <- c("year", "married", "umpartner", "nevmar", "divsep", 
              "white", "black", "asian", "hispanic", "otherrace", 
              "lths", "highschool", "somecol", "baormore",              
              "exfamdum", "numhhchild", "kidu2dum", "kid2to5", 
@@ -74,80 +74,73 @@ table1_svy
 #Selfcare
 lm_selfcare <- lm(selfcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
-pselfcare   <- ggeffect(lm_selfcare, terms = "sex")
+pselfcare   <- ggeffect(lm_selfcare, terms = c("year", "sex"))
 
 #Eating
 lm_eating <- lm(eating  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
-peating   <- ggeffect(lm_eating, terms = "sex")
+peating   <- ggeffect(lm_eating, terms = c("year", "sex"))
 
 #Work & Education
 lm_workedu <- lm(workedu  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                 data = atussample, weight=wt20)
-pworkedu   <- ggeffect(lm_workedu, terms = "sex")
+pworkedu   <- ggeffect(lm_workedu, terms = c("year", "sex"))
 
 #Carework
 lm_allcare <- lm(allcare  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                  data = atussample, weight=wt20)
-pallcare   <- ggeffect(lm_allcare, terms = "sex")
+pallcare   <- ggeffect(lm_allcare, terms = c("year", "sex"))
 
 #Housework
 lm_hwork <- lm(hwork  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                  data = atussample, weight=wt20)
-phwork   <- ggeffect(lm_hwork, terms = "sex")
+phwork   <- ggeffect(lm_hwork, terms = c("year", "sex"))
 
 #Passive Leisure
 lm_passleis <- lm(passleis  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                data = atussample, weight=wt20)
-ppassleis   <- ggeffect(lm_passleis, terms = "sex")
+ppassleis   <- ggeffect(lm_passleis, terms = c("year", "sex"))
 
 #Other Activities
 lm_otheract <- lm(otheract  ~ year + sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                   data = atussample, weight=wt20)
-potheract   <- ggeffect(lm_otheract, terms = "sex")
+potheract   <- ggeffect(lm_otheract, terms = c("year", "sex"))
 
-## Label the group values as the activity
-levels(pallcare$group)[levels(pallcare$group)=="1"]   <- "Carework"
-levels(peating$group)[levels(peating$group)=="1"]     <- "Eating"
-levels(phwork$group)[levels(phwork$group)=="1"]       <- "Housework"
-levels(potheract$group)[levels(potheract$group)=="1"] <- "Other"
-levels(ppassleis$group)[levels(ppassleis$group)=="1"] <- "Passive Leisure"
-levels(pselfcare$group)[levels(pselfcare$group)=="1"] <- "Self-care"
-levels(pworkedu$group)[levels(pworkedu$group)=="1"]   <- "Work & Education"
-
-
-# Change the variable to be a factor variable from numeric
-pallcare$x <- as.factor(pallcare$x)
-peating$x <- as.factor(peating$x)
-phwork$x <- as.factor(phwork$x)
-potheract$x <- as.factor(potheract$x)
-ppassleis$x <- as.factor(ppassleis$x)
-pselfcare$x <- as.factor(pselfcare$x)
-pworkedu$x <- as.factor(pworkedu$x)
+## Create an activity identity variable
+pallcare$act  <- "Carework"
+peating$act   <- "Eating"
+phwork$act    <- "Housework"
+potheract$act <- "Other"
+ppassleis$act <- "Passive Leisure"
+pselfcare$act <- "Self-care"
+pworkedu$act  <- "Work & Education"
 
 # Combine the datatables
 pred <- rbind(pallcare, peating, phwork, potheract, ppassleis, pselfcare, pworkedu)
 
-# Revalue the gender factors to be readable
-levels(pred$x)[levels(pred$x)=="1"] <- "Fathers"
-levels(pred$x)[levels(pred$x)=="2"] <- "Mothers"
+# Rename gender variables as parents
+levels(pred$group)[levels(pred$group)=="Man"] <- "Fathers"
+levels(pred$group)[levels(pred$group)=="Woman"] <- "Mothers"
 
 # Order the activity factors
-pred$group <- ordered(pred$group, levels = c("Self-care", "Work & Education", "Housework", "Carework", "Passive Leisure", "Eating", "Other"))
+pred$act <- ordered(pred$act, levels = c("Self-care", "Work & Education", "Housework", "Carework", "Passive Leisure", "Eating", "Other"))
 
 ## Graph it
 
 fig1 <- pred %>%
-  ggplot(aes(x, predicted, fill = x, label = round(predicted, 0))) +
-  geom_col() +
-  facet_grid(~group) +
+  ggplot(aes(group, predicted, fill = x, label = round(predicted, 0))) +
+  geom_col(width = 0.7, position   =  position_dodge(.8)) +
+  facet_grid(~act) +
   geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2,
                 position=position_dodge(.9), color="grey") +
+  geom_text(. %>% filter(act  == "Work & Education" & group == "Fathers"), 
+            mapping  = aes(label   =  x, 
+                           color    = x,
+                           y        = 370),
+            position = position_dodge(1.5),
+            size     = 3,
+            fontface = "bold") +
   theme_minimal() +
-  ggtitle("Figure 1. Average Time Parents Spend Per Day in Each Activity") +
-  labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day with model controls",
-       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for year, education, race-ethnicity, marital status, extra adults,
-       number of household kids, kids under 2, age, weekend diary day") +
   theme(plot.subtitle = element_text(size = 11, vjust = 1),
         plot.caption  = element_text(vjust = 1, size =8, colour = "grey"), 
         legend.position="none",
@@ -156,7 +149,11 @@ fig1 <- pred %>%
         axis.text     = element_text(size = 8), 
         plot.title    = element_text(size = 12, face = "bold"),
         panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank())
+        panel.grid.major.x = element_blank()) +
+  ggtitle("Figure 1. Average Time Parents Spend Per Day in Each Activity") +
+  labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day",
+       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for education, race-ethnicity, marital status, extra adults,
+       number of household kids, kids under 2, age, weekend diary day\nDue to COVID-19 pandemic, data range: May through December in 2019 vs. 2020")
 
 fig1
 
