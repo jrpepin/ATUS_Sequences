@@ -9,3 +9,5 @@
 00_setup_joanna.R
 00_setup_jpepin.R
 *.Rproj
+figures/
+output/
