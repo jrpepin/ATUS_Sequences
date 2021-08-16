@@ -43,6 +43,12 @@ if(!require(tidyverse)){
   library(tidyverse)
 }
 
+## for 04 script...can't remember why
+if(!require(data.table)){
+  install.packages("data.table")
+  library(data.table)
+}
+
 ## for survey weights
 if(!require(survey)){
   install.packages("survey")
@@ -61,6 +67,11 @@ if(!require(ggeffects)){
   library(ggeffects)
 }
 
+# for multinomial models
+if(!require(nnet)){
+  install.packages("nnet")
+  library(nnet)
+}
 
 ## for sequence analyses
 if(!require(TraMineR)){
