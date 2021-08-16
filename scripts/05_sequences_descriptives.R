@@ -2,58 +2,58 @@
 # DESCRIBING SEQUENCES
 
 ## list of states present in the data set
-alphabet(atus2017.seq)
+alphabet(seqdata.seq)
 
 ## State distribution table
-seqstatd(atus2017.seq) # This shows there are 1440 states (e.g., minutes)
+seqstatd(seqdata.seq) # This shows there are 1440 states (e.g., minutes)
 
 # Calculate the probability of moving from one state (activity) to another
-seqtrate(atus2017.seq)
+seqtrate(seqdata.seq)
 
 # substitution-cost matrix
-costgen=seqsubm(atus2017.seq, method="TRATE")
+costgen=seqsubm(seqdata.seq, method="TRATE")
 costgen
 
 ################################################################################################
 # VISUALIZING SEQUENCES
 
 ## Create a legend as a separate graphic since several plots use the same color codes for the states
-seqlegend(atus2017.seq, cex = 1.3, ncol = 2)
+seqlegend(seqdata.seq, cex = 1.3, ncol = 2)
 
 ## seqdplot() for plotting the state distribution at each time point (tempograms)
 
-levels(atus2017$sex)[levels(atus2017$sex)=="Man"]   <- "Fathers"
-levels(atus2017$sex)[levels(atus2017$sex)=="Woman"] <- "Mothers"
+levels(seqdata$sex)[levels(seqdata$sex)=="Man"]   <- "Fathers"
+levels(seqdata$sex)[levels(seqdata$sex)=="Woman"] <- "Mothers"
 
 ### tempograms by gender
-seqdplot(atus2017.seq, group = atus2017$sex, 
+seqdplot(seqdata.seq, group = seqdata$sex, 
          border = NA, with.legend = F, ylab =NA, xtlab=as.character(1:1440), xtstep=1439, weighted=TRUE)
 
 
 ## seqfplot() for plotting the frequencies of the most frequent sequences
 ## the sequence frequency plot of the 10 most frequent sequences with bar width proportional to the frequencies
-seqfplot(atus2017.seq, group = atus2017$sex, border = NA, with.legend = F, main = "Sequence frequency plot")
+seqfplot(seqdata.seq, group = seqdata$sex, border = NA, with.legend = F, main = "Sequence frequency plot")
 
 ## Plot the entropy of the state distribution at each time point
-seqHtplot(atus2017.seq, main = "Entropy index")
+seqHtplot(seqdata.seq, main = "Entropy index")
 
 ## seqiplot() for plotting all or a selection of individual sequences
-#### seqIplot(atus2017.seq, with.legend = F, border = NA, main = "Index plot (All the sequences)") # This takes forever to run. use with caution
-seqIplot(atus2017.seq, with.legend = F, border = NA, main = "Index plot (10 first sequences)") # The time sequence for the first 10 respondents
-seqIplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F)
+#### seqIplot(seqdata.seq, with.legend = F, border = NA, main = "Index plot (All the sequences)") # This takes forever to run. use with caution
+seqIplot(seqdata.seq, with.legend = F, border = NA, main = "Index plot (10 first sequences)") # The time sequence for the first 10 respondents
+seqIplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F)
 
 ## Mean time in each state
-seqmtplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F, weighted=FALSE) ## The weights create an error, so set them to false.
+seqmtplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F, weighted=FALSE) ## The weights create an error, so set them to false.
 
 ## Modal state plot
-seqmsplot(atus2017.seq, group = atus2017$sex, border=NA, with.legend = F)
+seqmsplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F)
 
 ## the state distribution by time points
-seqdplot(atus2017.seq, with.legend = F, border = NA, main = "State distribution plot")
+seqdplot(seqdata.seq, with.legend = F, border = NA, main = "State distribution plot")
 
 ## Which activities do people move between?
   ### define sequences of transitions (from user's guide)
-  seqdatagen.seqe <- seqecreate(atus2017.seq)
+  seqdatagen.seqe <- seqecreate(seqdata.seq)
 
   ### plot the transitions
   fsubseq <- seqefsub(seqdatagen.seqe, pmin.support = 0.05)
@@ -69,30 +69,30 @@ seqdplot(atus2017.seq, with.legend = F, border = NA, main = "State distribution 
 clust4 <- cutree(ward.oms, k = 4)
   
 # Tempograms of the 4 clusters
-  png ("figures/clust4.png", width = 5, height = 5, units = 'in', res = 300)
-  seqdplot(atus2017.seq, group = clust4, border = NA) # Method 1
+  
+  png (file.path(outDir, "clust4.png"), width = 5, height = 5, units = 'in', res = 300)
+  seqdplot(seqdata.seq, group = clust4, border = NA) # Method 1
   dev.off()
 
 keep <- as.clustrange(ward.oms, diss = dist.oms, ### I think I'm using this one now?
-                           weights = atus2017$wt06, ncluster = 4)
-seqdplot(atus2017.seq, group = keep$clustering$cluster4, border = NA)
+                           weights = seqdata$wt20, ncluster = 4)
+seqdplot(seqdata.seq, group = keep$clustering$cluster4, border = NA)
 
 ## Assign respondents to a cluster and re-label the typologies
-atus2017$hcm <- factor(keep$clustering$cluster4, levels = c(1, 2,
-                                                     3, 4), labels = c("Day Workers", "Other", "Homeworkers",
-                                                                           "Night Workers"))
+seqdata$hcm <- factor(keep$clustering$cluster4, levels = c(1, 2,
+                                                     3, 4), labels = c("A", "B", 
+                                                                       "C", "D"))
 
 ## Save the data as a csv file.
-write.csv(atus2017, "data/atus17typo.csv")
+write.csv(seqdata, file.path(outDir, "seqdata.csv"))
 
 ## If want to start from saved output file.
-atus2017 <-  read.csv("data/atus17typo.csv", header = TRUE)
+seqdata <-  read.csv(file.path(outDir, "seqdata.csv"), header = TRUE)
 
 ## I did the ASA paper graphs this way, but we should consider doing regressions as described in Stuber 2013 (see code below)
-library("nnet")
-library("ggeffects")
-typodemo <- multinom(hcm  ~ sex + marstat + raceethnicity + edcat + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
-                    data = atus2017, weight=wt06)
+
+typodemo <- multinom(hcm  ~ sex + marstat + raceethnicity + edcat + employ + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+                    data = seqdata, weight=wt20)
 
 ## Figure 4
 sexpp <- ggeffect(typodemo, terms = c("sex"))
@@ -125,11 +125,10 @@ ggplot(aes(x, predicted, fill = x, label = round(predicted, 0))) +
         plot.title    = element_text(size = 12, face = "bold"),
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank())
+fig4
+ggsave(file.path(outDir, "sequences_fig4.png"), fig4, height = 6, width = 8, dpi = 300)
 
-ggsave("figures/sequences_fig4.png", fig4, height = 6, width = 8, dpi = 300)
-
-
-## Figure 4
+## Figure 5
 racepp <- ggeffect(typodemo, terms = c("raceethnicity"))
 
 colnames(racepp)[colnames(racepp) == 'response.level'] <- 'class'
@@ -166,11 +165,11 @@ fig5 <- racepp %>%
 
 fig5
 
-ggsave("figures/sequences_fig5.png", fig5, height = 6, width = 8, dpi = 300)
+ggsave(file.path(outDir, "sequences_fig5.png"), fig5, height = 6, width = 8, dpi = 300)
 
 
-# old <- wcKMedoids(dist.oms, k = 4, weights = atus2017$wt06, initialclust = ward.oms) 
-# seqdplot(atus2017.seq, group = old$clustering, border = NA)
+# old <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20, initialclust = ward.oms) 
+# seqdplot(seqdata.seq, group = old$clustering, border = NA)
 
 
 
@@ -187,24 +186,26 @@ ggsave("figures/sequences_fig5.png", fig5, height = 6, width = 8, dpi = 300)
 
 
 # 3	Clusters OMS PAM	Ward
-# clust3 <- wcKMedoids(dist.oms, k = 3, weights = atus2017$wt06,
+# clust3 <- wcKMedoids(dist.oms, k = 3, weights = seqdata$wt20,
 # initialclust = ward.oms)
 # Tempograms of the 3 clusters
 # png ("figures/clust3.png", width = 5, height = 5, units = 'in', res = 300)
-# seqdplot(atus2017.seq, group = clust3$clustering, border = NA) # Method 1
+# seqdplot(seqdata.seq, group = clust3$clustering, border = NA) # Method 1
 # dev.off()
 
-# seqdplot(atus2017.seq, group = range.pam.ward.oms$clustering$cluster3, border = NA) # Method 2
+# seqdplot(seqdata.seq, group = range.pam.ward.oms$clustering$cluster3, border = NA) # Method 2
 
 ################################################################################################
 # REGRESSION ANALYSIS OF CLUSTERS (Struder, 2013)
 
 # a bivariate test of the association
 set.seed(1)
-dsa <- dissassoc(dist.oms, atus2017$sex, weights = atus2017$wt06,
+dsa <- dissassoc(dist.oms, seqdata$sex, weights = seqdata$wt20,
                  weight.permutation = "diss", R = 5000)
 print(dsa$stat) # Interpret Pseudo R2
 
-dsa <- dissassoc(dist.dhd, atus2017$sex, weights = atus2017$wt06,
+dsa <- dissassoc(dist.dhd, seqdata$sex, weights = seqdata$wt20,
                  weight.permutation = "diss", R = 5000)
 
+setOutputLevel(Info)
+report(Info, "End of 05_sequences_descriptives")     # Marks end of R Script

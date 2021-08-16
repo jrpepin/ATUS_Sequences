@@ -302,3 +302,5 @@ atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
 ## Year
 atus$year       <- as.factor(atus$year)
 
+setOutputLevel(Info)
+report(Info, "End of 01_sequences_measures")                            # Marks end of R Script

@@ -1,14 +1,12 @@
+#------------------------------------------------------------------------------------
+# ATUS SEQUENCE ANALYSIS
+# 03_sequences_create sequences.R
+# Joanna R. Pepin & Sarah Flood
+#------------------------------------------------------------------------------------
+
+
 # Save output of this file
 sink(file=file.path(outDir, "03output.txt"), append=FALSE, split=TRUE)  # for screen and log
-
-# Libraries
-#library(TraMineR)
-#library(TraMineRextras)
-#library(WeightedCluster)
-#library(cluster)
-#library(graphicsQC) 
-#library(foreign)
-#library(tictoc)
 
 # Create a subsample so it doesn't take forever to run
   # seqdata <- data[seqdata(nrow(seqdata), 500), ]
@@ -66,8 +64,8 @@ seqdata.seq[1:5, 300:350] # Look at sequences of first 5 respondents, minutes 30
 print(seqdata.seq[1:5, 300:350], format = "SPS") # more concise view of sequences with the SPS state-permanence representation.
 
 ## Define separate sequence objects for men and women
- # seqdata.M.seq <- seqdef(data = seqdata.M,var = 34:1473, states = seqdata.scode, labels = seqdata.labels, weights = seqdata.M$wt06) # Men sequence object
- # seqdata.W.seq <- seqdef(data = seqdata.W,var = 34:1473, states = seqdata.scode, labels = seqdata.labels, weights = seqdata.W$wt06) # Women sequence object
+ # seqdata.M.seq <- seqdef(data = seqdata.M,var = 34:1473, states = seqdata.scode, labels = seqdata.labels, weights = seqdata.M$wt20) # Men sequence object
+ # seqdata.W.seq <- seqdef(data = seqdata.W,var = 34:1473, states = seqdata.scode, labels = seqdata.labels, weights = seqdata.W$wt20) # Women sequence object
 
 ####################################################################
 # 1. Choose the measure of dissimilarity 
@@ -91,13 +89,15 @@ dist.dhd[1:5, 1:5]
 ### lower the w to give more importance to the transition type than to the origin states. I think w == otto
 ### sm must be specified. It can be "INDELS" or "INDELSLOG"
 
-### Marking this out and using Sarah's instead!
-# dist.oms <- readRDS("data/dist_oms.rds")
-   tic("OMS Run Time:") #Let's time this long running function!
-   dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
-   toc(log = TRUE)
+### LONG TIME TO RUN (DAYS!). USE SAVED VERSION WHEN POSSIBLE
+  # tic("OMS Run Time:") #Let's time this long running function!
+  # dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
+  # toc(log = TRUE)
+  # saveRDS(dist.oms, file = file.path(outDir, "dist.omsJP.RDS")) # JP's version
+   
+dist.oms <- readRDS(file.path(outDir, "dist.omsJP.RDS")) # load saved version
 
-### Warning message: at least, one indel cost does not respect the triangle inequality.
+### checking if respect the triangle inequality? 
 dist.oms[1:5, 1:5]
 
 ####################################################################
@@ -106,11 +106,11 @@ dist.oms[1:5, 1:5]
 
 ## A. Hierarchical Clustering Method 
 ## i. Ward - Minimization of residual variance (weighted)
-ward.dhd<- hclust(as.dist(dist.dhd), method = "ward.D", members = seqdata$wt06)
-ward.oms<- hclust(as.dist(dist.oms), method = "ward.D", members = seqdata$wt06)
+ward.dhd<- hclust(as.dist(dist.dhd), method = "ward.D", members = seqdata$wt20)
+ward.oms<- hclust(as.dist(dist.oms), method = "ward.D", members = seqdata$wt20)
 
-plot(ward.dhd)
-plot(ward.oms)
+# plot(ward.dhd) ## !?!?! error. why?
+# plot(ward.oms)
 
 ## ii. beta-flexible - good results in the presence of various forms of error in the data (unweighted)
 beta.dhd <- agnes(dist.dhd, diss = TRUE, method = "flexible", par.method=0.625) # diss = this is a dissimiliarity matrix 
@@ -125,23 +125,23 @@ plot(beta.oms, which.plots = 2)
     #### sum of distances from the other observations de this group
 
 ## i. predefined number k of groups
-pam.dhd4 <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt06) #This arbitrarily picks 4 clusters.
-pam.oms4 <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt06) #This arbitrarily picks 4 clusters.
+pam.dhd4 <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt20) #This arbitrarily picks 4 clusters.
+pam.oms4 <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20) #This arbitrarily picks 4 clusters.
 
 # display the medoid sequences of each group
 print(seqdata.seq[unique(pam.dhd4$clustering), ], format = "SPS")
 
 ## ii. Combining the algorithms
-pam.ward.dhd <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt06,
+pam.ward.dhd <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt20,
                             initialclust = ward.dhd)
 
-pam.ward.oms <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt06,
+pam.ward.oms <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20,
                            initialclust = ward.oms)
 
-pam.beta.dhd <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt06,
+pam.beta.dhd <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt20,
                            initialclust = beta.dhd)
 
-pam.beta.oms <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt06,
+pam.beta.oms <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20,
                            initialclust = beta.oms)
 
 ####################################################################
@@ -165,27 +165,27 @@ pam.beta.oms <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt06,
     #### The index ranges between 0 and 1, with a small value indicating a good partition of the data.
 
 ## A. Ward -- Computing the quality of all these different possibilities 
-range.ward.dhd <- as.clustrange(ward.dhd, diss = dist.dhd, weights = seqdata$wt06, ncluster = 15)
-range.ward.oms <- as.clustrange(ward.oms, diss = dist.oms, weights = seqdata$wt06, ncluster = 15)
+range.ward.dhd <- as.clustrange(ward.dhd, diss = dist.dhd, weights = seqdata$wt20, ncluster = 15)
+range.ward.oms <- as.clustrange(ward.oms, diss = dist.oms, weights = seqdata$wt20, ncluster = 15)
 
 summary(range.ward.dhd, max.rank = 2) # the best number of groups according to each quality measure and the value of these statistics
 summary(range.ward.oms, max.rank = 2) # the best number of groups according to each quality measure and the value of these statistics
 
 
 ## B. Beta -- Computing the quality of all these different possibilities 
-range.beta.dhd <- as.clustrange(beta.dhd, diss = dist.dhd, weights = seqdata$wt06, ncluster = 15)
-range.beta.oms <- as.clustrange(beta.oms, diss = dist.oms, weights = seqdata$wt06, ncluster = 15)
+range.beta.dhd <- as.clustrange(beta.dhd, diss = dist.dhd, weights = seqdata$wt20, ncluster = 15)
+range.beta.oms <- as.clustrange(beta.oms, diss = dist.oms, weights = seqdata$wt20, ncluster = 15)
 
 summary(range.beta.dhd, max.rank = 2) # the best number of groups according to each quality measure and the value of these statistics
 summary(range.beta.oms, max.rank = 2) # the best number of groups according to each quality measure and the value of these statistics
 
 
 # C. PAM
-range.pam.ward.dhd <- wcKMedRange(dist.dhd, kvals = 2:15, weights = seqdata$wt06, initialclust = ward.dhd)
-range.pam.ward.oms <- wcKMedRange(dist.oms, kvals = 2:15, weights = seqdata$wt06, initialclust = ward.oms)
+range.pam.ward.dhd <- wcKMedRange(dist.dhd, kvals = 2:15, weights = seqdata$wt20, initialclust = ward.dhd)
+range.pam.ward.oms <- wcKMedRange(dist.oms, kvals = 2:15, weights = seqdata$wt20, initialclust = ward.oms)
 
-range.pam.beta.dhd <- wcKMedRange(dist.dhd, kvals = 2:15, weights = seqdata$wt06, initialclust = beta.dhd)
-range.pam.beta.oms <- wcKMedRange(dist.oms, kvals = 2:15, weights = seqdata$wt06, initialclust = beta.oms)
+range.pam.beta.dhd <- wcKMedRange(dist.dhd, kvals = 2:15, weights = seqdata$wt20, initialclust = beta.dhd)
+range.pam.beta.oms <- wcKMedRange(dist.oms, kvals = 2:15, weights = seqdata$wt20, initialclust = beta.oms)
 
 
 # save the quality measures as a dataframe
@@ -228,7 +228,7 @@ cl1.8 <- cutree(ward.dhd, k = 8)
   #### HC - Hubert's C coefficient.
       #### compares the partition obtained with the best partition that could be obtained with this number of groups and this distance matrix. 
       #### The index ranges between 0 and 1, with a small value indicating a good partition of the data.
-### Leaving the weights off for now, but need to decide about including them (weights = seqdata$wt06)
+### Leaving the weights off for now, but need to decide about including them (weights = seqdata$wt20)
 
 wcClusterQuality(dist.dhd, cl1.2)
 wcClusterQuality(dist.dhd, cl1.3)
@@ -252,4 +252,7 @@ wcClusterQuality(dist.dhd, cl1.8)
   # tic.clearlog() # rest the time log
 
 sink() # Return output to the screen only
-savehistory(file="data/03history.Rhistory") # Save the commnd history
+savehistory(file=file.path(outDir, "03history.Rhistory")) # Save the command history
+
+setOutputLevel(Info)
+report(Info, "End of 03_sequences_create sequences")     # Marks end of R Script

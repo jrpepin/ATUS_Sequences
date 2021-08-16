@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------------
 # ATUS SEQUENCE ANALYSIS
-# 02_sample and minutes.R
+# 02_sequences_sample and minutes.R
 # Joanna R. Pepin & Sarah Flood
 #------------------------------------------------------------------------------------
 
@@ -141,3 +141,6 @@ fig1 <- meansDF %>%
 fig1
 
 ggsave(file.path(outDir, "sequences_fig1.png"), fig1, height = 6, width = 8, dpi = 300)
+
+setOutputLevel(Info)
+report(Info, "End of 02_sequences_sample and minutes")     # Marks end of R Script

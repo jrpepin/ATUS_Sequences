@@ -1,6 +1,8 @@
-library(data.table)
-library(tidyverse)
-library(ggplot2)
+#------------------------------------------------------------------------------------
+# ATUS SEQUENCE ANALYSIS
+# 04_sequences_quality analyses.R
+# Joanna R. Pepin & Sarah Flood
+#------------------------------------------------------------------------------------
 
 # Data frames
 # qm_ward_dhd
@@ -46,7 +48,7 @@ qm_beta_oms$algorithm <- "HCM"
 qm_pam_beta_dhd$algorithm <- "PAM"
 qm_pam_beta_oms$algorithm <- "PAM"
 
-# Add columns to dataframes that mark the algorithm approach
+# Add columns to dataframes that mark the method
 qm_ward_dhd$method <- "Ward"
 qm_ward_oms$method <- "Ward"
 qm_pam_ward_dhd$method <- "Ward"
@@ -87,7 +89,7 @@ qmtable <- qmdata %>%
   arrange(clusters) %>%
   mutate_if(is.numeric, round, digits=3)
 
-write.csv(qmtable, "data/qmtable.csv")
+write.csv(qmtable, file.path(outDir, "qmtable.csv"))
 
 ## Wrangle the data for graphing
 ## reshape the data from wide to long form
@@ -96,7 +98,7 @@ qmdata <- as_tibble(qmdata)
 qmdata <- qmdata %>%
   gather(stat, value, -clusters, -diss, -algorithm, -method)
 
-qmdata$stat <- as_factor(qmdata$stat)
+qmdata$stat <- forcats::as_factor(qmdata$stat)
 
 qmdata <- qmdata %>%
   mutate(
@@ -125,4 +127,7 @@ qmplot <- qmdata %>%
   
 qmplot
 
-ggsave("figures/qmplot.png", qmplot, width = 24, height = 16, units = "cm", dpi = 300)
+ggsave(file.path(outDir, "qmplot.png"), qmplot, width = 24, height = 16, units = "cm", dpi = 300)
+
+setOutputLevel(Info)
+report(Info, "End of 04_sequences_quality analyses")     # Marks end of R Script
