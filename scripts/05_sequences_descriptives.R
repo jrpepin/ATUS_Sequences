@@ -65,23 +65,35 @@ seqdplot(seqdata.seq, with.legend = F, border = NA, main = "State distribution p
 
 
 # OR
-# 4	OMS	HCM	Ward
-clust4 <- cutree(ward.oms, k = 4)
+# 5	OMS	PAM	Ward
+clust5 <- cutree(ward.oms, k = 5)
+
+  clust5 <- factor(clust5, labels = paste("Cluster", 1:5))
   
-# Tempograms of the 4 clusters
+## https://rpubs.com/Kolpashnikova/sequenceAnalysis
   
-  png (file.path(outDir, "clust4.png"), width = 5, height = 5, units = 'in', res = 300)
-  seqdplot(seqdata.seq, group = clust4, border = NA) # Method 1
+# Tempograms of the 5 clusters
+  
+  # Method 1 (what's saved in outDir)
+  png (file.path(outDir, "clust5.png"), width = 5, height = 5, units = 'in', res = 300)
+  seqdplot(seqdata.seq, 
+           group = clust5, 
+           border = NA, 
+           yaxis = FALSE, 
+           ylab = "")
   dev.off()
 
-keep <- as.clustrange(ward.oms, diss = dist.oms, ### I think I'm using this one now?
-                           weights = seqdata$wt20, ncluster = 4)
-seqdplot(seqdata.seq, group = keep$clustering$cluster4, border = NA)
+  # Method 2 (what gets printed on plot window)
+  keep <- as.clustrange(ward.oms, diss = dist.oms,
+                             weights = seqdata$wt20, ncluster = 5)
+  
+  seqdplot(seqdata.seq, group = keep$clustering$cluster5, border = NA)
 
-## Assign respondents to a cluster and re-label the typologies
-seqdata$hcm <- factor(keep$clustering$cluster4, levels = c(1, 2,
-                                                     3, 4), labels = c("A", "B", 
-                                                                       "C", "D"))
+  
+## Assign respondents to a cluster and re-label the typologies -------------------------------
+seqdata$hcm <- factor(keep$clustering$cluster5, 
+                      levels = c(1, 2, 3, 4, 5), 
+                      labels = c("A", "B", "C", "D", "E"))
 
 ## Save the data as a csv file.
 write.csv(seqdata, file.path(outDir, "seqdata.csv"))
@@ -174,7 +186,7 @@ ggsave(file.path(outDir, "sequences_fig5.png"), fig5, height = 6, width = 8, dpi
 
 
 ## Which transitions are distinctive for each cluster? (this plot needs formatting to be useful)
-# discr4 <- seqecmpgroup(fsubseq, group = clust4$clustering)
+# discr4 <- seqecmpgroup(fsubseq, group = clust5$clustering)
 # plot(discr5[1:5])
 
 # discr5 <- seqecmpgroup(fsubseq, group = clust5)

@@ -103,14 +103,14 @@ qmdata$stat <- forcats::as_factor(qmdata$stat)
 qmdata <- qmdata %>%
   mutate(
     approach = case_when(
-      diss == "DHD" & algorithm == "HCM" & method == "Ward" ~ "HCM-DHD-Ward",
-      diss == "OMS" & algorithm == "HCM" & method == "Ward" ~ "HCM-OMS-Ward",
-      diss == "DHD" & algorithm == "HCM" & method == "Beta" ~ "HCM-DHD-Beta",
-      diss == "OMS" & algorithm == "HCM" & method == "Beta" ~ "HCM-OMS-Beta",
-      diss == "DHD" & algorithm == "PAM" & method == "Ward" ~ "PAM-DHD-Ward",
-      diss == "OMS" & algorithm == "PAM" & method == "Ward" ~ "PAM-OMS-Ward",
-      diss == "DHD" & algorithm == "PAM" & method == "Beta" ~ "PAM-DHD-Beta",
-      diss == "OMS" & algorithm == "PAM" & method == "Beta" ~ "PAM-OMS-Beta"))
+      diss == "DHD" & algorithm == "HCM" & method == "Ward" ~ "DHD-HCM-Ward",
+      diss == "OMS" & algorithm == "HCM" & method == "Ward" ~ "OMS-HCM-Ward",
+      diss == "DHD" & algorithm == "HCM" & method == "Beta" ~ "DHD-HCM-Beta",
+      diss == "OMS" & algorithm == "HCM" & method == "Beta" ~ "OMS-HCM-Beta",
+      diss == "DHD" & algorithm == "PAM" & method == "Ward" ~ "DHD-PAM-Ward",
+      diss == "OMS" & algorithm == "PAM" & method == "Ward" ~ "OMS-PAM-Ward",
+      diss == "DHD" & algorithm == "PAM" & method == "Beta" ~ "DHD-PAM-Beta",
+      diss == "OMS" & algorithm == "PAM" & method == "Beta" ~ "OMS-PAM-Beta"))
       
 # Let's graph it!
 # Stats we care about
@@ -119,7 +119,7 @@ qmdata <- qmdata %>%
 qmplot <- qmdata %>%
   filter((stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC") & clusters <=10) %>%
     ggplot(aes(x = clusters, y = value, color = approach)) +
-    facet_grid(vars(algorithm), vars(stat)) +
+    facet_grid(vars(diss), vars(stat)) +
       geom_line(lwd = 1) +
   theme_minimal() +
   ggtitle("Figure 2. Quality Measures for Sequence Analysis Approach") +

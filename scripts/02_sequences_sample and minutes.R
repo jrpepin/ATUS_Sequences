@@ -124,6 +124,8 @@ fig1 <- meansDF %>%
             size     = 3,
             fontface = "bold") +
   theme_minimal() +
+  scale_fill_manual(values  =c("#ec7014", "#7570b3")) +
+  scale_colour_manual(values=c("#ec7014", "#7570b3")) +
   theme(plot.subtitle = element_text(size = 11, vjust = 1),
         plot.caption  = element_text(vjust = 1, size =8, colour = "grey"), 
         legend.position="none",

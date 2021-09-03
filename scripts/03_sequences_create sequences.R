@@ -50,6 +50,14 @@ seqdata.seq <- seqdef(data = seqdata, var = minF:minL, states = seqdata.scode, l
 ## Setting a user defined color palette to be used in visuals
 cpal(seqdata.seq) <- c("#7570b3", "#ec7014", "#1b9e77",  "#e6ab02", "#e7298a", "#e5d8bd", "#1f78b4") 
 
+    #7570b3 purple
+    #ec7014 orange
+    #1b9e77 green
+    #e6ab02 yellow
+    #e7298a pink
+    #e5d8bd tan
+    #1f78b4 blue
+
 ## Look at the sequence object
 summary(seqdata.seq) # Overview of the sequence object
   ## Shows the number of sequences and unique sequences. 
