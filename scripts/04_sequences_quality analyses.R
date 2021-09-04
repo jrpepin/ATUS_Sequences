@@ -116,18 +116,18 @@ qmdata <- qmdata %>%
 # Stats we care about
 # "PBC", "HG", "ASWw", "HC"
 
-qmplot <- qmdata %>%
+fig3 <- qmdata %>%
   filter((stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC") & clusters <=10) %>%
     ggplot(aes(x = clusters, y = value, color = approach)) +
     facet_grid(vars(diss), vars(stat)) +
       geom_line(lwd = 1) +
   theme_minimal() +
-  ggtitle("Figure 2. Quality Measures for Sequence Analysis Approach") +
+  ggtitle("Figure 3. Quality Measures for Sequence Analysis Approach") +
   labs(x = "Number of clusters", y = "Values")
   
-qmplot
+fig3
 
-ggsave(file.path(outDir, "qmplot.png"), qmplot, width = 24, height = 16, units = "cm", dpi = 300)
+ggsave(file.path(outDir, "sequences_fig3.png"), fig3, width = 24, height = 16, units = "cm", dpi = 300)
 
 setOutputLevel(Info)
 report(Info, "End of 04_sequences_quality analyses")     # Marks end of R Script

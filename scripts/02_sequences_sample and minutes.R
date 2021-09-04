@@ -17,7 +17,7 @@ mindata  <- mindata  %>%
 summary(mindata$minute) #Max should be 1440
 
 ## Create wide minute file
-mindata <- mindata %>%
+mindata_w <- mindata %>%
   select(caseid, minute, actcat) %>%
   spread(minute, actcat)
 
@@ -38,8 +38,10 @@ atussample <- atus %>%
 ## Missing data  
 colSums(is.na(atussample))
 
-seqdata  <- left_join(atussample, mindata) #Merge minute data only for cases in sample
+seqdata  <- left_join(atussample, mindata_w) # Merge minute data only for cases in sample
 
+mindata$year <- as.factor(mindata$year)
+tempdata <- left_join(atussample, mindata)   # Merge minute data only for cases in sample for tempograms (long)
 
 # Sample characteristics --------------------------------------------------------------
 
@@ -135,14 +137,50 @@ fig1 <- meansDF %>%
         plot.title    = element_text(size = 12, face = "bold"),
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()) +
-  ggtitle("Figure 1. Average Time Parents Spend Per Day in _________") +
-  labs(x = NULL, y = NULL, subtitle = "Predicted minutes per day",
-       caption = "Source: American Time Use Surveys (2019/2020) \n Models control for education, employment, race-ethnicity, marital status, extra adults,
-       number of household kids, kids under 2, age, weekend diary day\nDue to COVID-19 pandemic, data range: May through December in 2019 vs. 2020")
+  labs(x = NULL, y = NULL, 
+       subtitle = "Predicted minutes per day",
+       caption = "Source: American Time Use Surveys \n Models control for education, employment, race-ethnicity, marital status, extra adults,
+       number of household kids, kids under 2, age, weekend diary day\nDue to COVID-19 pandemic, data range: May through December in 2019 and 2020") +
+  ggtitle("Figure 1. Average Time Parents Spend Per Day in _________") 
 
 fig1
 
 ggsave(file.path(outDir, "sequences_fig1.png"), fig1, height = 6, width = 8, dpi = 300)
+
+
+# FIGURE 2 --------------------------------------------------------------------------
+
+tempdata <- tempdata  %>%
+  group_by(year, sex, minute, actcat) %>%
+  summarise(n = sum(actline)) %>%
+  mutate(percentage = n / sum(n)) ## these are unweighted
+
+
+fig2 <- ggplot(tempdata, aes(x=minute, y=percentage, fill=actcat)) + 
+  geom_area(alpha    = 0.6, 
+            size     = 1, 
+            colour   = "black", 
+            position = position_fill(reverse = TRUE)) +
+  facet_grid(sex ~ year, switch = "y") +
+  theme_minimal() +
+  theme(legend.position     = "bottom",
+        legend.title        = element_blank(),
+        strip.text.y.left   = element_text(angle = 0)) +
+  scale_fill_manual(values  = c("#7570b3", "#ec7014", 
+                               "#1b9e77",  "#e6ab02", 
+                               "#e7298a", "#e5d8bd", 
+                               "#1f78b4")) +
+  scale_x_continuous(limits = c(0, 1440),
+                     breaks = c(0, 500, 1000, 1440)) +
+  labs(x = NULL, y = NULL, 
+       caption = "Source: American Time Use Surveys \nDue to COVID-19 pandemic, data range: May through December in 2019 and 2020") +
+  ggtitle("Figure 2. Tempograms of Fathers' and Mothers' Time on Diary Day") 
+  
+
+fig2
+
+ggsave(file.path(outDir, "sequences_fig2.png"), fig2, height = 6, width = 8, dpi = 300)
+
 
 setOutputLevel(Info)
 report(Info, "End of 02_sequences_sample and minutes")     # Marks end of R Script
