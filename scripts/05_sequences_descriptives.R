@@ -63,19 +63,15 @@ seqdplot(seqdata.seq, with.legend = F, border = NA, main = "State distribution p
 ################################################################################################
 # VISUALIZING CLUSTERS
 
-
-# OR
-# 5	OMS	PAM	Ward
+# Figure 4. Tempograms of the 5 clusters -------------------------------------------
+  
+## 5	OMS	PAM	Ward https://rpubs.com/Kolpashnikova/sequenceAnalysis
 clust5 <- cutree(ward.oms, k = 5)
 
-  clust5 <- factor(clust5, labels = paste("Cluster", 1:5))
-  
-## https://rpubs.com/Kolpashnikova/sequenceAnalysis
-  
-# Tempograms of the 5 clusters
+  clust5 <- factor(clust5, labels = c("Strange", "Day Workers", "Houseworkers", "TV Viewers", "Caregivers"))
   
   # Method 1 (what's saved in outDir)
-  png (file.path(outDir, "clust5.png"), width = 5, height = 5, units = 'in', res = 300)
+  png (file.path(outDir, "sequences_fig4.png"), width = 5, height = 5, units = 'in', res = 300)
   seqdplot(seqdata.seq, 
            group = clust5, 
            border = NA, 
@@ -88,12 +84,15 @@ clust5 <- cutree(ward.oms, k = 5)
                              weights = seqdata$wt20, ncluster = 5)
   
   seqdplot(seqdata.seq, group = keep$clustering$cluster5, border = NA)
-
+  # if error, increase the plot area window
+  
+################################################################################################
+# MULTINOMIAL ANALAYSIS
   
 ## Assign respondents to a cluster and re-label the typologies -------------------------------
 seqdata$hcm <- factor(keep$clustering$cluster5, 
                       levels = c(1, 2, 3, 4, 5), 
-                      labels = c("A", "B", "C", "D", "E"))
+                      labels = c("Strange", "Day Workers", "Houseworkers", "TV Viewers", "Caregivers"))
 
 ## Save the data as a csv file.
 write.csv(seqdata, file.path(outDir, "seqdata.csv"))
@@ -102,45 +101,58 @@ write.csv(seqdata, file.path(outDir, "seqdata.csv"))
 seqdata <-  read.csv(file.path(outDir, "seqdata.csv"), header = TRUE)
 
 ## I did the ASA paper graphs this way, but we should consider doing regressions as described in Stuber 2013 (see code below)
-
-typodemo <- multinom(hcm  ~ sex + marstat + raceethnicity + edcat + employ + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
+seqdata$year <- as.factor(seqdata$year)
+typodemo <- multinom(hcm  ~ year + sex + marstat + raceethnicity + edcat + employ + exfamdum + numhhchild + kidu2dum + kid2to5 + age + weekend,
                     data = seqdata, weight=wt20)
 
-## Figure 4
-sexpp <- ggeffect(typodemo, terms = c("sex"))
+# Figure 5 ------------------------------------------------------------------------------------
+sexpp <- ggeffect(typodemo, terms = c("year", "sex"))
 
+# Rename/order the clusters
 colnames(sexpp)[colnames(sexpp) == 'response.level'] <- 'class'
 sexpp$class <- as.factor(sexpp$class)
+levels(sexpp$class)[levels(sexpp$class)=="Day.Workers"] <- "Day Workers"
+levels(sexpp$class)[levels(sexpp$class)=="TV.Viewers"]  <- "TV Viewers"
+sexpp$class <- factor(sexpp$class, 
+                levels = c("Day Workers", 
+                           "Caregivers", 
+                           "Houseworkers", 
+                           "TV Viewers",
+                           "Strange"), ordered = FALSE )
 
-# Revalue the gender factors to be readable
-sexpp$x <- as.factor(sexpp$x)
-levels(sexpp$x)[levels(sexpp$x)=="1"] <- "Fathers"
-levels(sexpp$x)[levels(sexpp$x)=="2"] <- "Mothers"
+# Rename the gender variables
+sexpp$group <- as.factor(sexpp$group)
+levels(sexpp$group)[levels(sexpp$group)=="1"] <- "Fathers"
+levels(sexpp$group)[levels(sexpp$group)=="2"] <- "Mothers"
 
-fig4 <- sexpp %>%
+fig5 <- sexpp %>%
 ggplot(aes(x, predicted, fill = x, label = round(predicted, 0))) +
   geom_col() +
-  facet_grid(~class) +
-  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2,
-                position=position_dodge(.9), color="grey") +
+  facet_grid(group~class, switch = "y") +
+#  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2,
+#       position            = position_dodge(.9), color="grey") +
   theme_minimal() +
-  ggtitle("Figure 4. Sequence Cluster by Gender") +
-  labs(x = NULL, y = NULL, subtitle = "Predicted proportion per cluster with model controls",
-       caption = "Source: American Time Use Surveys (2017) \n Models control for education, race-ethnicity, marital status, extra adults,
+  scale_fill_manual(values  =c("#ec7014", "#7570b3")) +
+  theme(legend.position     = "none",
+        legend.title        = element_blank(),
+        plot.subtitle       = element_text(size = 11, vjust = 1),
+        plot.caption        = element_text(vjust = 1, size =8, colour = "grey"), 
+        strip.text.y.left   = element_text(angle = 0, face = "bold"),
+        strip.text.x        = element_text(face = "bold"),
+        strip.placement     = "outside") +
+  labs(x        = NULL, 
+       y        = NULL, 
+       group    = NULL, 
+       subtitle = "Predicted proportion per cluster in 2019 and 2020",
+       caption  = "Source: American Time Use Surveys \nDue to COVID-19 pandemic, data range: May through December in 2019 and 2020 \nModels control for education, race-ethnicity, marital status, extra adults,
        number of household kids, kids under 2, age, weekend diary day") +
-  theme(plot.subtitle = element_text(size = 11, vjust = 1),
-        plot.caption  = element_text(vjust = 1, size =8, colour = "grey"), 
-        legend.position="none",
-        strip.text.x  = element_text(size = 8, face = "bold"),
-        axis.title    = element_text(size = 9), 
-        axis.text     = element_text(size = 8), 
-        plot.title    = element_text(size = 12, face = "bold"),
-        panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank())
-fig4
-ggsave(file.path(outDir, "sequences_fig4.png"), fig4, height = 6, width = 8, dpi = 300)
+  ggtitle("Figure 5. Sequence Cluster by Gender")
+  
+fig5
 
-## Figure 5
+ggsave(file.path(outDir, "sequences_fig5.png"), fig5, height = 6, width = 8, dpi = 300)
+
+## Figure 6 -------------------------------------------------------------------------------
 racepp <- ggeffect(typodemo, terms = c("raceethnicity"))
 
 colnames(racepp)[colnames(racepp) == 'response.level'] <- 'class'
@@ -154,14 +166,14 @@ levels(racepp$x)[levels(racepp$x)=="3"] <- "Hispanic"
 levels(racepp$x)[levels(racepp$x)=="4"] <- "Other race"
 levels(racepp$x)[levels(racepp$x)=="5"] <- "White"
 
-fig5 <- racepp %>%
+fig6 <- racepp %>%
   ggplot(aes(x, predicted, fill = x, label = round(predicted, 0))) +
   geom_col() +
   facet_grid(~class) +
   geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2,
                 position=position_dodge(.9), color="grey") +
   theme_minimal() +
-  ggtitle("Figure 5. Sequence Cluster by Race-ethnicity") +
+  ggtitle("Figure 6. Sequence Cluster by Race-ethnicity") +
   labs(x = NULL, y = NULL, subtitle = "Predicted proportion per cluster with model controls",
        caption = "Source: American Time Use Surveys (2017) \n Models control for education, race-ethnicity, marital status, extra adults,
        number of household kids, kids under 2, age, weekend diary day") +
@@ -175,9 +187,9 @@ fig5 <- racepp %>%
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank())
 
-fig5
+fig6
 
-ggsave(file.path(outDir, "sequences_fig5.png"), fig5, height = 6, width = 8, dpi = 300)
+ggsave(file.path(outDir, "sequences_fig6.png"), fig6, height = 6, width = 8, dpi = 300)
 
 
 # old <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20, initialclust = ward.oms) 

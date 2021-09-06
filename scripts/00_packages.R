@@ -30,7 +30,6 @@ if(!require(reportr)){
   library(reportr)
 }
 
-
 # use variable labels
 if(!require(sjlabelled)){
   install.packages("sjlabelled")
@@ -41,6 +40,17 @@ if(!require(sjlabelled)){
 if(!require(tidyverse)){
   install.packages("tidyverse")
   library(tidyverse)
+}
+
+## for reproducible tables
+if(!require(flextable)){
+  install.packages("flextable")
+  library(flextable)
+}
+
+if(!require(officer)){
+  install.packages("officer")
+  library(officer)
 }
 
 ## for 04 script...can't remember why
@@ -56,9 +66,9 @@ if(!require(survey)){
 }
 
 ## create descriptive tables
-if(!require(tableone)){
-  install.packages("tableone")
-  library(tableone)
+if(!require(gtsummary)){
+  install.packages("gtsummary")
+  library(gtsummary)
 }
 
 ## create marginal estimates

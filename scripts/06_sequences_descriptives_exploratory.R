@@ -36,3 +36,5 @@ gentime4_seq <- seqgranularity(cl2,
 
 seqdplot(gentime4_seq, border = NA, with.legend = "right", legend.prop=0.4) # Plot Cluster 1
 seqplot(gentime4_seq, type="ms", with.legend = "right", legend.prop=0.4, main="Modal Sequences") # Plot Modal Sequences of Cluster 1
+
+

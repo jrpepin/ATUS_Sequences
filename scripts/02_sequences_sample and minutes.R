@@ -43,30 +43,55 @@ seqdata  <- left_join(atussample, mindata_w) # Merge minute data only for cases 
 mindata$year <- as.factor(mindata$year)
 tempdata <- left_join(atussample, mindata)   # Merge minute data only for cases in sample for tempograms (long)
 
-# Sample characteristics --------------------------------------------------------------
-
-## Set as survey data
-dataSvy <- svydesign(ids = ~1, weights = ~ wt20, data = atussample)
-summary(dataSvy)
+# Table 01: Sample characteristics -----------------------------------------------------
 
 ## Number of observations (unweighted)
 table(atussample$sex)
 
-### Create Table 1 variable list
-catVars <- c("year", "married", "umpartner", "nevmar", "divsep", 
-             "white", "black", "asian", "hispanic", "otherrace", 
-             "lths", "highschool", "somecol", "baormore",
-             "fulltime", "parttime", "unemployed",
-             "exfamdum", "numhhchild", "kidu2dum", "kid2to5", 
-             "age", "weekend")
+## Create survey data
+tab1data <- atussample %>%
+  select("year", "weekend", "sex",  "marstat", "raceethnicity",
+         "edcat", "employ","exfamdum", "kidu2dum", "kid2to5", 
+         "numhhchild", "age", "wt20")
 
-### Total Population (Weighted)
-table1_svy <- svyCreateTableOne(vars = catVars, data = dataSvy)
-table1_svy
+tab1Svy <- svydesign(ids = ~1, weights = ~ wt20, data = tab1data)
 
-### By Gender
-table1_svy <- svyCreateTableOne(vars = catVars, data = dataSvy, strata = c("sex"), test = F)
-table1_svy
+tab1 <- tab1Svy %>%
+  tbl_svysummary(by = "sex",
+                 statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
+    label = list(marstat    ~ "Relationship Status",
+                 raceethnicity ~ "Respondent race/ethnicity",
+                 edcat      ~ "Educational attainment",
+                 employ     ~ "Employment status",
+                 exfamdum   ~ "Extended HH Family Member",
+                 kidu2dum   ~ "Presence of kid under 2",
+                 kid2to5    ~ "Presence of kid 2 to 5",
+                 age        ~ "Respondent age",
+                 numhhchild ~ "Number of kids in household",
+                 year       ~ "Year",
+                 weekend    ~ "Weekend diary day"),
+    value = list(kidu2dum   = "1",
+                 kid2to5    = "1"))  %>%
+  add_overall() %>%
+  modify_header(
+    update = list(
+      label ~ "**Variable**",
+      stat_0 ~ "**Overall** N = {N_unweighted}",
+      stat_1 ~ "**{level}** N = {n_unweighted}",
+      stat_2 ~ "**{level}** N = {n_unweighted}")) %>%
+  as_flex_table() 
+
+## https://mran.microsoft.com/snapshot/2017-12-11/web/packages/officer/vignettes/word.html
+read_docx() %>% 
+  body_add_par("Table 01. Sample Characteristics") %>% 
+  body_add_flextable(value = tab1) %>% 
+  print(target = file.path(outDir, "sequences_table01.docx"))
+
+
+# gtsummary::as_gt() %>%
+# gt::tab_source_note(gt::md("*Source: American Time Use Survey (2019 & 2020)*
+  #                           *Notes: Sample proportions are weighted.*
+   #                          *List-wise deletion used to address missing.*"))
 
 # Predicted minutes of activities by gender * year with controls -----------------
 
@@ -150,13 +175,15 @@ ggsave(file.path(outDir, "sequences_fig1.png"), fig1, height = 6, width = 8, dpi
 
 # FIGURE 2 --------------------------------------------------------------------------
 
-tempdata <- tempdata  %>%
-  group_by(year, sex, minute, actcat) %>%
-  summarise(n = sum(actline)) %>%
-  mutate(percentage = n / sum(n)) ## these are unweighted
+tempdata <- tempdata %>% 
+  group_by(year, sex, minute) %>% 
+  count(actcat , wt = wt20) %>% 
+  mutate(per = n/sum(n))
 
+# Renaming factor levels
+levels(tempdata$sex) <- c("Fathers", "Mothers")
 
-fig2 <- ggplot(tempdata, aes(x=minute, y=percentage, fill=actcat)) + 
+fig2 <- ggplot(tempdata, aes(x=minute, y=per, fill=actcat)) + 
   geom_area(alpha    = 0.6, 
             size     = 1, 
             colour   = "black", 
@@ -165,16 +192,22 @@ fig2 <- ggplot(tempdata, aes(x=minute, y=percentage, fill=actcat)) +
   theme_minimal() +
   theme(legend.position     = "bottom",
         legend.title        = element_blank(),
-        strip.text.y.left   = element_text(angle = 0)) +
+        plot.subtitle       = element_text(size = 11, vjust = 1),
+        plot.caption        = element_text(vjust = 1, size =8, colour = "grey"), 
+        strip.text.y.left   = element_text(angle = 0, face = "bold"),
+        strip.text.x        = element_text(face = "bold"),
+        strip.placement     = "outside") +
   scale_fill_manual(values  = c("#7570b3", "#ec7014", 
                                "#1b9e77",  "#e6ab02", 
                                "#e7298a", "#e5d8bd", 
                                "#1f78b4")) +
   scale_x_continuous(limits = c(0, 1440),
                      breaks = c(0, 500, 1000, 1440)) +
-  labs(x = NULL, y = NULL, 
-       caption = "Source: American Time Use Surveys \nDue to COVID-19 pandemic, data range: May through December in 2019 and 2020") +
-  ggtitle("Figure 2. Tempograms of Fathers' and Mothers' Time on Diary Day") 
+  labs(x        = NULL, 
+       y        = NULL,
+       subtitle = "for each minute on time diary day",
+       caption  = "Source: American Time Use Surveys \nDue to COVID-19 pandemic, data range: May through December in 2019 and 2020") +
+  ggtitle("Figure 2. Tempograms: Proportion of Fathers' and Mothers' in Each Activity") 
   
 
 fig2
