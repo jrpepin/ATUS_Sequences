@@ -13,7 +13,7 @@ https://doi.org/10.18128/D060.V2.8
   
 ### Samples  
   
-2019-2020 - Respondents and Household Members  
+2019-2020 - Respondents and Household Members  (hierarchical extract)
 * includes eldercare for 2019 and 2020
   
 ### Variables  
