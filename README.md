@@ -14,12 +14,13 @@ https://doi.org/10.18128/D060.V2.8
 ### Samples  
   
 2019-2020 - Respondents and Household Members  
+* includes eldercare for 2019 and 2020
   
 ### Variables  
   
-RECTYPE       YEAR          MONTH         DAY           CASEID       PERNUM         LINENO        LINENO_CPS8   PRESENCE     WT06     WT20  
-AGE           SEX           RACE          HISPAN        MARST         RELATE        EDUC         EDUCYRS        EMPSTAT       
-CLWKR         FULLPART      UHRSWORKT     SPOUSEPRES    HH_SIZE  
+RECTYPE       YEAR          MONTH         DAY           CASEID       PERNUM         LINENO        LINENO_CPS8   PRESENCE     WT06     WT20 
+AGE           SEX           RACE          HISPAN        MARST        RELATE         EDUC          EDUCYRS       EMPSTAT
+CLWKR         FULLPART      UHRSWORKT     SPOUSEPRES    HH_SIZE      HHTENURE       REGION        DIFFANY       AGEYCHILD    HH_EC  
 ACTIVITY      DURATION      ACTLINE       START         STOP  
 
 
