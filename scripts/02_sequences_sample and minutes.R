@@ -24,8 +24,7 @@ mindata_w <- mindata %>%
 # Create analytic sample (person level) --------------------------------------------
 
 atussample <- atus %>%
-  filter(hhchildu18 == 1 &  ## parents
-         month      >= 5) %>% ## diaries from May to Dec.
+  filter(month      >= 5) %>% ## diaries from May to Dec.
   select(caseid, year, month, wt20, 
          selfcare, eating, workedu, allcare, hwork, passleis, otheract, 
          sex, marstat, raceethnicity, edcat, employ, 
@@ -33,7 +32,15 @@ atussample <- atus %>%
          married, nevmar, umpartner, divsep,
          lths, highschool, somecol, baormore, 
          fulltime, parttime, unemployed,
-         white, black, asian, hispanic, otherrace)
+         white, black, asian, hispanic, otherrace,
+         # Newly added variables (process first)
+         hh_ec,
+         ownrent,
+         region,
+         diffany,
+         ageychild, 
+         hhchildu18,
+         hhchildu13)
 
 ## Missing data  
 colSums(is.na(atussample))
@@ -50,9 +57,13 @@ table(atussample$sex)
 
 ## Create survey data
 tab1data <- atussample %>%
-  select("year", "weekend", "sex",  "marstat", "raceethnicity",
-         "edcat", "employ","exfamdum", "kidu2dum", "kid2to5", 
-         "numhhchild", "age", "wt20")
+  select("wt20", "year", "weekend", 
+         "sex",  "marstat", "raceethnicity", "age",
+         "edcat", "employ", "ownrent", 
+         "hhchildu18", "numhhchild", 
+         "kidu2dum", "kid2to5", "hhchildu13", 
+         "exfamdum", "hh_ec", "diffany",
+         "region")
 
 tab1Svy <- svydesign(ids = ~1, weights = ~ wt20, data = tab1data)
 
@@ -60,18 +71,24 @@ tab1 <- tab1Svy %>%
   tbl_svysummary(by = "sex",
                  statistic = all_categorical() ~ "{n_unweighted} ({p}%)",
     label = list(marstat    ~ "Relationship Status",
-                 raceethnicity ~ "Respondent race/ethnicity",
+                 raceethnicity ~ "Race/ethnicity",
                  edcat      ~ "Educational attainment",
                  employ     ~ "Employment status",
                  exfamdum   ~ "Extended HH Family Member",
-                 kidu2dum   ~ "Presence of kid under 2",
-                 kid2to5    ~ "Presence of kid 2 to 5",
-                 age        ~ "Respondent age",
-                 numhhchild ~ "Number of kids in household",
+                 hh_ec      ~ "HH Member Eldercare Recipient",
+                 diffany    ~ "Physical or Cognitive difficulty",
+                 hhchildu18 ~ "Parent",
+                 kidu2dum   ~ "Presence of Kid under 2",
+                 kid2to5    ~ "Presence of Kid 2 to 5",
+                 hhchildu13 ~ "Presence of Kid under 13",
+                 age        ~ "Age",
+                 numhhchild ~ "Number of Kids in Household",
+                 ownrent    ~ "Home Ownership",
                  year       ~ "Year",
                  weekend    ~ "Weekend diary day"),
     value = list(kidu2dum   = "1",
-                 kid2to5    = "1"))  %>%
+                 kid2to5    = "1"),
+    type = list(numhhchild ~ "continuous"))  %>%
   add_overall() %>%
   modify_header(
     update = list(

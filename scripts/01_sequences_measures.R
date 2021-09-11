@@ -15,11 +15,12 @@ names(data)
 #####################################################################################
 # Change class of variables
 
-fcols <- c("day", "sex", "race", "hispan", "marst", "relate", "spousepres")
+fcols <- c("day", "sex", "race", "hispan", "marst", "relate", "spousepres", 
+           "hh_ec", "hhtenure", "region", "diffany")
 
 icols <- c("rectype", "year", "month", "hh_size", "pernum", "lineno", "lineno_cps8",
-           "presence", "age", "educ", "educyrs", "actline", "uhrsworkt",
-           "wt06", "wt20") #  I changed this from numeric. Change back if creates errors.
+           "presence", "age", "educ", "educyrs", "actline", "uhrsworkt", "ageychild",
+           "wt06", "wt20")
 
 ccols <- c("caseid", "empstat", "clwkr", "fullpart", "activity")
 
@@ -108,10 +109,10 @@ actsum <- actdata %>%
 #####################################################################################
 # Create person level demographic data
 
-## Household variable
+## Household variables
 rec1 <- data %>% 
   filter(rectype == 1) %>%
-  select(caseid,  hh_size)
+  select(caseid,  hh_size, region, hhtenure, ageychild)
 
 colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
 
@@ -119,7 +120,8 @@ colnames(rec1)[colnames(rec1)=="hh_size"] <- "numterrp"
 rec2 <- data %>% 
   filter(rectype == 2) %>%
   select(caseid, year, month, pernum, lineno, lineno_cps8, presence, day, wt06, wt20,
-         age, sex, race, hispan, marst, relate, educ, educyrs, empstat, clwkr, fullpart, uhrsworkt, spousepres)
+         age, sex, race, hispan, marst, relate, educ, educyrs, 
+         empstat, clwkr, fullpart, uhrsworkt, spousepres, diffany)
 
 ### who lives in household
 rec2 <- rec2 %>%
@@ -157,21 +159,32 @@ max <- rec2 %>%
 sum <- rec2 %>%
   select(caseid, kidu2dum, hhchild, kid2to5) %>%
   group_by(caseid) %>% 
-  summarise(kidu2num   = sum(!is.na(kidu2dum)),
-            numhhchild = sum(!is.na(hhchild)),
-            kid2to5num = sum(!is.na(kid2to5)))
+  summarise(kidu2num   = sum(kidu2dum),
+            numhhchild = sum(hhchild),
+            kid2to5num = sum(kid2to5))
 
 demo <- rec2 %>%
   filter(relate == "Self") %>%
   select(caseid, year, month, wt06, wt20, day, age, sex, race, hispan, marst, educ, educyrs, empstat, 
-                    clwkr, fullpart, uhrsworkt, spousepres)
+                    clwkr, fullpart, uhrsworkt, spousepres, diffany)
+
+## Elder Care
+rec5 <- data %>% 
+  filter(rectype == 5) %>%
+  select(caseid,  hh_ec) %>%
+  mutate(hh_ec = case_when(
+    hh_ec == "Recipient is not a household member" ~ 0,
+    hh_ec == "Recipient is a household member" ~ 1)) %>% 
+  group_by(caseid) %>% 
+  summarise_at(vars(hh_ec), ~max(., na.rm = TRUE))
 
 #####################################################################################
 # Combine datasets
-atus <- reduce(list(actsum, rec1, max, sum, demo), 
+atus <- reduce(list(actsum, rec1, max, sum, demo, rec5), 
                left_join, by = "caseid")
 
 head(atus, n = 5)
+
 # remove unnecessary dataframes
 remove(actsum)
 remove(rec1)
@@ -201,7 +214,7 @@ atus <- atus %>%
       TRUE                                                                                                   ~  NA_character_ 
     ))
 
-atus$nevmar    <- as.numeric(atus$mar == "Never married")
+atus$nevmar    <- as.numeric(atus$mar == "Never Married")
 atus$separated <- as.numeric(atus$mar == "Separated")
 atus$divorced  <- as.numeric(atus$mar == "Divorced")
 atus$widowed   <- as.numeric(atus$mar == "Widowed")
@@ -214,7 +227,7 @@ atus <- atus %>%
     marstat = case_when(
       married    == 1                                 ~ "Married",
       umpartner  == 1                                 ~ "Cohabiting",
-      nevmar     == 1                                 ~ "Never married",
+      nevmar     == 1                                 ~ "Never Married",
       divorced   == 1 | separated == 1 | widowed == 1 ~ "Divorced/Separated/Widowed",
       TRUE                                            ~  NA_character_ 
     ))
@@ -298,6 +311,32 @@ atus <- atus %>%
 atus$fulltime       <- as.numeric(atus$employ == "Full time")
 atus$parttime       <- as.numeric(atus$employ == "Part time")
 atus$unemployed     <- as.numeric(atus$employ == "Not in labor force")
+
+## Eldercare recipient
+atus$hh_ec[is.na(atus$hh_ec)] <- 0
+
+## Home ownership
+atus <- atus %>%
+  mutate(
+    ownrent = case_when(
+      hhtenure == "Owned or being bought by a household member"     ~ "Own",
+      hhtenure == "Rented for cash"                                 ~ "Rent",
+      hhtenure == "Occupied without payment of cash rent"           ~ "Other",     
+      hhtenure == "NIU (Not in universe)"                           ~ "Other",
+      TRUE                                                          ~  NA_character_ 
+    ))
+
+atus$ownrent <- factor(atus$ownrent, levels = c("Own", "Rent", "Other"))
+
+## Disability
+atus <- atus %>%
+  mutate(
+    diffany = case_when(
+      diffany == "No difficulty" ~ 0,
+      diffany == "Has difficulty" ~ 1))
+
+## Age of youngest child
+atus$ageychild[atus$ageychild == 999] <- NA
 
 ## Year
 atus$year       <- as.factor(atus$year)
