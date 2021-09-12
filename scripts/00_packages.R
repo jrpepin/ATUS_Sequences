@@ -72,6 +72,12 @@ if(!require(gtsummary)){
 }
 
 ## create marginal estimates
+
+if(!require(effects)){
+  install.packages("effects")
+  library(ggeffects)
+}
+
 if(!require(ggeffects)){
   install.packages("ggeffects")
   library(ggeffects)
