@@ -40,15 +40,16 @@ minL <- which( colnames(seqdata)=="1440") #1440 = minute 1440 of the time diary
 seqstatl(seqdata, minF:minL) #Lists the states of the sequences
 
 ## Define the labels for the states. (These are in alphabetical order.)
-seqdata.labels <- c("Carework", "Eating", "Housework", "Other", "Passive Leisure", "Sleep & Selfcare", "Work & Edu") # Create long labels.
-seqdata.scode <- c("C", "E", "H", "O", "P", "S", "W") # Create alphabet list. 
+seqdata.labels <- c("Carework", "Housework", "Other", "Personal Care", 
+                    "Sedentary Leisure", "Social Leisure", "Travel", "Work & Educ.") # Create long labels.
+seqdata.scode <- c("C", "H", "O", "P", "TV", "S", "T", "W") # Create alphabet list. 
 
 ## Define the data as sequence data and create a sequence object
 seqdata.seq <- seqdef(data = seqdata, var = minF:minL, states = seqdata.scode, labels = seqdata.labels, weights = seqdata$wt20)
 ### un-used xtstep option sets the step between displayed tick-marks and labels on the x-axis of state sequence plots.
 
 ## Setting a user defined color palette to be used in visuals
-cpal(seqdata.seq) <- c("#7570b3", "#ec7014", "#1b9e77",  "#e6ab02", "#e7298a", "#e5d8bd", "#1f78b4") 
+cpal(seqdata.seq) <- c("#7570b3", "#ec7014", "#1b9e77",  "#e6ab02", "#e7298a", "#e5d8bd", "#1f78b4", "#e32636") 
 
     #7570b3 purple
     #ec7014 orange
@@ -57,6 +58,7 @@ cpal(seqdata.seq) <- c("#7570b3", "#ec7014", "#1b9e77",  "#e6ab02", "#e7298a", "
     #e7298a pink
     #e5d8bd tan
     #1f78b4 blue
+    #e32636 red
 
 ## Look at the sequence object
 summary(seqdata.seq) # Overview of the sequence object
@@ -98,14 +100,14 @@ dist.dhd[1:5, 1:5]
 ### sm must be specified. It can be "INDELS" or "INDELSLOG"
 
 ### LONG TIME TO RUN (DAYS!). USE SAVED VERSION WHEN POSSIBLE
-  # tic("OMS Run Time:") #Let's time this long running function!
-  # dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
-  # toc(log = TRUE)
-  # saveRDS(dist.oms, file = file.path(outDir, "dist.omsJP.RDS")) # JP's version
+   tic("OMS Run Time:") #Let's time this long running function!
+   dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
+   toc(log = TRUE)
+   saveRDS(dist.oms, file = file.path(outDir, "dist.omsJP.RDS")) # JP's version
    
-dist.oms <- readRDS(file.path(outDir, "dist.omsJP.RDS")) # load saved version
+#dist.oms <- readRDS(file.path(outDir, "dist.omsJP.RDS")) # load saved version
 
-### checking if respect the triangle inequality? 
+### checking if respect the triangle of inequality? 
 dist.oms[1:5, 1:5]
 
 ####################################################################

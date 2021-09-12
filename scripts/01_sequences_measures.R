@@ -48,62 +48,72 @@ actdata %>%
   group_by(caseid) %>%
   summarise(total= sum(duration))
 
-## /We're going to group activities together in local macros that we can use later
+## /We're going to group activities together in macros that we can use later
 
 ### Groups are:
-  # Sleep/Grooming 
-  # Eating
+  # Sleep/Grooming/Eating 
   # Work and education
   # Care work 
   # Housework 
-  # Passive leisure 
+  # Sedentary leisure 
+  # Social leisure
+  # Travel
   # All other activities
 
 ## Sleep/Grooming
 selfcare <- actdata$activity %in% 
-  c(010100:020000, 080500:080600)
+  c(010100:020000, 080500:080600,
+    110000:120000) # Eating
 
-## Eating
-eating  <- actdata$activity %in% 
-  c(110000:120000, 181101, 181199)
-  
-## Paid Work & Education -- and related travel
+## Paid Work & Education
 workedu <- actdata$activity %in% 
-  c(050100:060000, 060100:070000, 160103, 180500:180600, 180600:180700)
+  c(050100:060000, 060100:070000, 160103)
 
 ## Care work -- childcare & eldercare
 allcare <- actdata$activity %in% 
-  c(030100:040000, 080100:080200, 180300:180400)
+  c(030100:040000, 080100:080200)
 
 ## Household Work (Housework, Shopping/Services)
 hwork <- actdata$activity %in% 
   c(020100:030000, 080200:080300, 080700:080800, 090100:100000, 070101, 
-    180701, 180904, 180807, 180903, 080699, 160106)
+    080699, 160106)
   
-## Passive leisure
+## Sedentary leisure
 passleis <- actdata$activity %in% 
-  c(120300:120308, 120503, 120399)
+  c(120300:120399, 120503)
+
+## Social leisure
+socleis <- actdata$activity %in%
+  c(120100:120299, 120400:129999, 130000:139999, 
+    140000:149999, 150100:159999)
+
+## Travel
+travel <- actdata$activity %in%
+  c(180000:190000)
+
 
 actdata$actcat                        <- NA
-actdata$actcat[selfcare]              <- "Sleep & Selfcare"
-actdata$actcat[eating]                <- "Eating"
-actdata$actcat[workedu]               <- "Work & Edu"
+actdata$actcat[selfcare]              <- "Personal Care"
+actdata$actcat[workedu]               <- "Work & Educ."
 actdata$actcat[allcare]               <- "Carework"
 actdata$actcat[hwork]                 <- "Housework"
-actdata$actcat[passleis]              <- "Passive Leisure"
+actdata$actcat[passleis]              <- "Sedentary Leisure"
+actdata$actcat[socleis]               <- "Social Leisure"
+actdata$actcat[travel]                <- "Travel"
 actdata$actcat[is.na(actdata$actcat)] <- "Other"
 
 actdata$actcat <- as.character(actdata$actcat)
 
-## Duration summary activty variables  -- person level
+## Duration summary activity variables  -- person level
 actsum <- actdata %>%
   group_by(caseid) %>%
-  summarise (selfcare    = sum(duration[actcat ==  "Sleep & Selfcare"],       na.rm=TRUE),
-             eating      = sum(duration[actcat ==  "Eating"],                 na.rm=TRUE),
-             workedu     = sum(duration[actcat ==  "Work & Edu"],             na.rm=TRUE),
+  summarise (selfcare    = sum(duration[actcat ==  "Personal Care"],          na.rm=TRUE),
+             workedu     = sum(duration[actcat ==  "Work & Educ."],           na.rm=TRUE),
              allcare     = sum(duration[actcat ==  "Carework"],               na.rm=TRUE),
              hwork       = sum(duration[actcat ==  "Housework"],              na.rm=TRUE),
-             passleis    = sum(duration[actcat ==  "Passive Leisure"],        na.rm=TRUE),
+             passleis    = sum(duration[actcat ==  "Sedentary Leisure"],      na.rm=TRUE),
+             socleis     = sum(duration[actcat ==  "Social Leisure"],         na.rm=TRUE),
+             travel      = sum(duration[actcat ==  "Travel"],                 na.rm=TRUE),
              otheract    = sum(duration[actcat ==  "Other"],                  na.rm=TRUE))
 
 #####################################################################################
