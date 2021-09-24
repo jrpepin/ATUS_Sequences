@@ -17,7 +17,7 @@ setupfile   <- "00_setup_sarah" # Name of your personal setup file (name of this
 data_atus   <- "atus_00053.xml"    # Name of the downloaded atusX data file
 
 ## Directories
-projDir     <- here()                                          # File path to your master project folder (Project GitRepository)
+projDir     <- here("/pkg/ipums/personal/sarah/ATUS_sequences/")                                          # File path to your master project folder (Project GitRepository)
 dataDir     <- file.path(projDir, "data")                    # File path to where the data was downloaded
 
 srcDir      <- file.path(projDir, "scripts")                   # File path to the R scripts
