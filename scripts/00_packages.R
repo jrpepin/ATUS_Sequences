@@ -75,7 +75,7 @@ if(!require(gtsummary)){
 
 if(!require(effects)){
   install.packages("effects")
-  library(ggeffects)
+  library(effects)
 }
 
 if(!require(ggeffects)){
@@ -143,9 +143,11 @@ if(!require(tictoc)){
 
 # declare which package commands to use if same name function
 if(!require(conflicted)){
+if (!require(devtools)) install.packages("devtools")
   devtools::install_github("r-lib/conflicted")
   library(conflicted)
 }
+
 
 # Address any conflicts in the packages
 conflict_scout() # Identify the conflicts
