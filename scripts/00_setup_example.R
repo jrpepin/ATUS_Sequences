@@ -21,7 +21,8 @@ projDir     <- here()                                          # File path to yo
 dataDir     <- "../../Data/ATUS/ATUS19_20"                     # File path to where the data was downloaded
 
 srcDir      <- file.path(projDir, "scripts")                   # File path to the R scripts
-outDir      <- file.path(projDir, "output")                    # File path to save tables/figures
+outDir      <- file.path(projDir, "output")                    # File path to processed tables/figures
+docs        <- file.path(projDir, "docs")                      # File path to shared output
 
 setOutputLevel(Info)
 report(Info, "End of #{setupfile}")                            # Marks end of R Script

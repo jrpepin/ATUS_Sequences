@@ -98,11 +98,13 @@ tab1 <- tab1Svy %>%
       stat_2 ~ "**{level}** N = {n_unweighted}")) %>%
   as_flex_table() 
 
+tab1
+
 ## https://mran.microsoft.com/snapshot/2017-12-11/web/packages/officer/vignettes/word.html
 read_docx() %>% 
   body_add_par("Table 01. Sample Characteristics") %>% 
   body_add_flextable(value = tab1) %>% 
-  print(target = file.path(outDir, "sequences_table01.docx"))
+  print(target = file.path(docs, "sequences_table01.docx"))
 
 
 # gtsummary::as_gt() %>%

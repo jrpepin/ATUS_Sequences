@@ -223,7 +223,7 @@ atus <- atus %>%
       TRUE                                                                                                   ~  NA_character_ 
     ))
 
-atus$nevmar    <- as.numeric(atus$mar == "Never Married")
+atus$nevmar    <- as.numeric(atus$mar == "Never married")
 atus$separated <- as.numeric(atus$mar == "Separated")
 atus$divorced  <- as.numeric(atus$mar == "Divorced")
 atus$widowed   <- as.numeric(atus$mar == "Widowed")
@@ -241,7 +241,7 @@ atus <- atus %>%
       TRUE                                            ~  NA_character_ 
     ))
 
-atus$marstat <- factor(atus$marstat, levels = c("Married", "Cohabiting", "Never married", "Divorced/Separated/Widowed"), ordered = FALSE )
+atus$marstat <- factor(atus$marstat, levels = c("Married", "Cohabiting", "Never Married", "Divorced/Separated/Widowed"), ordered = FALSE )
 
 ## Race/Ethnicity 
 atus <- atus %>%
