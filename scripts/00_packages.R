@@ -3,151 +3,58 @@
 # 00_packages.R
 # Joanna R. Pepin & Sarah Flood
 #------------------------------------------------------------------------------------
-#####################################################################################
-## Install and load required packages
-#####################################################################################
-
-# dependencies include Rtools and devtools
-
+  
 # This file is for installing required packages for sequence and cluster analysis, 
 # as well as further calculations. 
+  
+  
+#####################################################################################
+# Install and load required packages
+#####################################################################################
 
-## for relative file paths
-if(!require(here)){
-  install.packages("here")
-  library(here)
-}
+# Download and install Rtools 4.2 from https://cran.r-project.org/bin/windows/Rtools/ 
+# or https://www.r-project.org/nosvn/winutf8/ucrt3/. (only need to install 1X)
+  
+# install.packages("pacman")       # Install pacman package if not installed
+library("pacman")                  # Load pacman package
+  
+# Install packages not yet installed & load them
+pacman::p_load(
+  here,       # relative file paths
+  devtools,   # loading github packages
+  conflicted, # declare which package commands
+  ipumsr,     # load IPUMS data
+  reportr,    # report end of scripts
+  tictoc,     # report run time of R scripts
+  sjlabelled, # use variable labels
+  tidyverse,  # processing data
+  haven,      # importing data
+  readr,      # read rectangular data 
+  foreign,    # reading and writing data
+  flextable,  # reproducible tables
+  officer,    # reproducible tables
+  data.table, # for 04 script...can't remember why
+  survey,     # use survey weights
+  gtsummary,  # create descriptive tables
+  effects,    # create marginal estimates
+  ggeffects,  # create marginal estimates
+  nnet,       # multinomial models
+  colorspace, # color palettes of figures
+  ## for sequence analyses
+  TraMineR,
+  cluster, 
+  WeightedCluster, 
+  TraMineRextras
+)
 
-## to install IPUMS data
-if(!require(ipumsr)){
-  install.packages("ipumsr")
-  library(ipumsr)
-}
+# devtools::install_github("maraab23/ggseqplot")
+library(ggseqplot) # use ggplot to graph TraMineR output
 
-# report end of scripts
-if(!require(reportr)){
-  install.packages("reportr")
-  library(reportr)
-}
-
-# use variable labels
-if(!require(sjlabelled)){
-  install.packages("sjlabelled")
-  library(sjlabelled)
-}
-
-## for data processing
-if(!require(tidyverse)){
-  install.packages("tidyverse")
-  library(tidyverse)
-}
-
-## for reproducible tables
-if(!require(flextable)){
-  install.packages("flextable")
-  library(flextable)
-}
-
-if(!require(officer)){
-  install.packages("officer")
-  library(officer)
-}
-
-## for 04 script...can't remember why
-if(!require(data.table)){
-  install.packages("data.table")
-  library(data.table)
-}
-
-## for survey weights
-if(!require(survey)){
-  install.packages("survey")
-  library(survey)
-}
-
-## create descriptive tables
-if(!require(gtsummary)){
-  install.packages("gtsummary")
-  library(gtsummary)
-}
-
-## create marginal estimates
-
-if(!require(effects)){
-  install.packages("effects")
-  library(effects)
-}
-
-if(!require(ggeffects)){
-  install.packages("ggeffects")
-  library(ggeffects)
-}
-
-# for multinomial models
-if(!require(nnet)){
-  install.packages("nnet")
-  library(nnet)
-}
-
-## for sequence analyses
-if(!require(TraMineR)){
-  install.packages("TraMineR")
-  library(TraMineR)
-}
-
-if(!require(cluster)){
-  install.packages("cluster")
-  library(cluster)
-}
-
-if(!require(WeightedCluster)){
-  install.packages("WeightedCluster")
-  library(WeightedCluster)
-}
-
-if(!require(haven)){
-  install.packages("haven")
-  library(haven)
-}
-
-if(!require(foreign)){
-  install.packages("foreign")
-  library(foreign)
-}
-
-if(!require(dplyr)){
-  install.packages("dplyr")
-  library(dplyr)
-}
-
-if(!require(readr)){
-  install.packages("readr")
-  library(readr)
-}
-
-if(!require(TraMineRextras)){
-  install.packages("TraMineRextras")
-  library(TraMineRextras)
-}
 
 # if(!require(graphicsQC)){
   # install.packages("graphicsQC") # not available for this version of R......
   # library(graphicsQC) # Consider using package ‘gdiff’ instead.
 # }
-
-# report run time of R scripts
-if(!require(tictoc)){
-  install.packages("tictoc")
-  library(tictoc)
-}
-
-# declare which package commands to use if same name function
-if(!require(conflicted)){
-if (!require(devtools)) install.packages("devtools")
-  devtools::install_github("r-lib/conflicted")
-  library(conflicted)
-}
-
 
 # Address any conflicts in the packages
 conflict_scout() # Identify the conflicts
