@@ -49,16 +49,20 @@ seqdata.seq <- seqdef(data = seqdata, var = minF:minL, states = seqdata.scode, l
 ### un-used xtstep option sets the step between displayed tick-marks and labels on the x-axis of state sequence plots.
 
 ## Setting a user defined color palette to be used in visuals
-cpal(seqdata.seq) <- c("#7570b3", "#ec7014", "#1b9e77",  "#e6ab02", "#e7298a", "#e5d8bd", "#1f78b4", "#e32636") 
+q8 <- qualitative_hcl(8, palette = "Dark 3")
+q8
 
-    #7570b3 purple
-    #ec7014 orange
-    #1b9e77 green
-    #e6ab02 yellow
-    #e7298a pink
-    #e5d8bd tan
-    #1f78b4 blue
-    #e32636 red
+cpal(seqdata.seq) <- c("#E16A86", "#C7821C", "#909800","#e5d8bd", "#00A846",  "#00A2D3", "#9183E6", "#D766C9") 
+
+#E16A86 pink
+#C7821C orange
+#909800 yellow-green
+#e5d8bd tan
+#00A846 green
+#00A2D3 blue
+#9183E6 purple
+#D766C9 pink-purple
+
 
 ## Look at the sequence object
 summary(seqdata.seq) # Overview of the sequence object
@@ -90,7 +94,12 @@ print(seqdata.seq[1:5, 300:350], format = "SPS") # more concise view of sequence
 ### substitution cost different at each time. Determined by time-specific transition frequency in data (not by the researcher)
 ### https://www.lives-nccr.ch/sites/default/files/pdf/publication/33_lives_wp_studer_sequencedissmeasures.pdf
 ### Laurent Lesnard 2010, 2012
-dist.dhd <- seqdist(seqdata.seq, method="DHD")
+#dist.dhd <- seqdist(seqdata.seq, method="DHD")
+
+## a moderate amount of time to run, so save and reload
+#  saveRDS(dist.dhd, file = file.path(outDir, "dist.dhd.RDS")) 
+dist.dhd <- readRDS(file.path(outDir, "dist.dhd.RDS")) # load saved version
+
 dist.dhd[1:5, 1:5]
 
 ## B. Optimal matching of transitions (OMstran) 
@@ -99,13 +108,16 @@ dist.dhd[1:5, 1:5]
 ### lower the w to give more importance to the transition type than to the origin states. I think w == otto
 ### sm must be specified. It can be "INDELS" or "INDELSLOG"
 
-### LONG TIME TO RUN (DAYS!). USE SAVED VERSION WHEN POSSIBLE
-   tic("OMS Run Time:") #Let's time this long running function!
-   dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
-   toc(log = TRUE)
-   saveRDS(dist.oms, file = file.path(outDir, "dist.omsJP.RDS")) # JP's version
+### LONG TIME TO RUN (WEEKS!). USE SAVED VERSION WHEN POSSIBLE
+#  tic("OMS Run Time:") #Let's time this long running function!
+#  dist.oms <- seqdist(seqdata.seq, method="OMstran", otto = .2, sm = "INDELS")
+
+  #### example <- seqdist(time15_seq, method = "OM", indel = 1, sm = scost) // https://github.com/Kolpashnikova/Sequence-Analysis-TIme-Use-Data-ATUS-
+  
+#  toc(log = TRUE)
+#  saveRDS(dist.oms, file = file.path(outDir, "dist.omsJP.RDS")) # JP's version
    
-#dist.oms <- readRDS(file.path(outDir, "dist.omsJP.RDS")) # load saved version
+dist.oms <- readRDS(file.path(outDir, "dist.omsJP.RDS")) # load saved version
 
 ### checking if respect the triangle of inequality? 
 dist.oms[1:5, 1:5]
@@ -119,15 +131,29 @@ dist.oms[1:5, 1:5]
 ward.dhd<- hclust(as.dist(dist.dhd), method = "ward.D", members = seqdata$wt20)
 ward.oms<- hclust(as.dist(dist.oms), method = "ward.D", members = seqdata$wt20)
 
-# plot(ward.dhd) ## !?!?! error. why?
+# plot(ward.dhd) 
 # plot(ward.oms)
+
+saveRDS(ward.dhd, file = file.path(outDir, "ward.dhd")) 
+ward.dhd <- readRDS(file.path(outDir, "ward.dhd.RDS")) # load saved version
+
+saveRDS(ward.oms, file = file.path(outDir, "ward.oms")) 
+ward.oms <- readRDS(file.path(outDir, "ward.oms.RDS")) # load saved version
+
 
 ## ii. beta-flexible - good results in the presence of various forms of error in the data (unweighted)
 beta.dhd <- agnes(dist.dhd, diss = TRUE, method = "flexible", par.method=0.625) # diss = this is a dissimiliarity matrix 
 beta.oms <- agnes(dist.oms, diss = TRUE, method = "flexible", par.method=0.625) # diss = this is a dissimiliarity matrix 
 
-plot(beta.dhd, which.plots = 2)
-plot(beta.oms, which.plots = 2)
+# plot(beta.dhd, which.plots = 2)
+# plot(beta.oms, which.plots = 2)
+
+saveRDS(beta.dhd, file = file.path(outDir, "beta.dhd")) 
+beta.dhd <- readRDS(file.path(outDir, "beta.dhd.RDS")) # load saved version
+
+saveRDS(beta.oms, file = file.path(outDir, "beta.oms")) 
+beta.oms <- readRDS(file.path(outDir, "beta.oms.RDS")) # load saved version
+
 
 ## B. Partitioning Around Medoids
 #### advantage of maximizing a global criterion and not only a local criterion
@@ -139,7 +165,14 @@ pam.dhd4 <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt20) #This arbitraril
 pam.oms4 <- wcKMedoids(dist.oms, k = 4, weights = seqdata$wt20) #This arbitrarily picks 4 clusters.
 
 # display the medoid sequences of each group
-print(seqdata.seq[unique(pam.dhd4$clustering), ], format = "SPS")
+# print(seqdata.seq[unique(pam.dhd4$clustering), ], format = "SPS")
+
+saveRDS(pam.dhd4, file = file.path(outDir, "pam.dhd4")) 
+pam.dhd4 <- readRDS(file.path(outDir, "pam.dhd4.RDS")) # load saved version
+
+saveRDS(pam.oms4, file = file.path(outDir, "pam.oms4")) 
+pam.oms4 <- readRDS(file.path(outDir, "pam.oms4.RDS")) # load saved version
+
 
 ## ii. Combining the algorithms
 pam.ward.dhd <- wcKMedoids(dist.dhd, k = 4, weights = seqdata$wt20,
