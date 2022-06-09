@@ -6,6 +6,7 @@
 # tables accompanying the publication. This scripts expects that you are in
 # its directory when you execute it. 
 
-# Users should first run the 00_packages script and create and run personalized setup script.
+setOutputLevel(Warning)
+report(Warning, "Users should first run the 00_packages script and create and run a personalized setup script.")
 
 ## source()
