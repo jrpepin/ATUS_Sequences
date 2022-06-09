@@ -104,8 +104,9 @@ tab1
 read_docx() %>% 
   body_add_par("Table 01. Sample Characteristics") %>% 
   body_add_flextable(value = tab1) %>% 
-  print(target = file.path(docs, "sequences_table01.docx"))
+  print(target = file.path(outDir, "sequences_table01.docx"))
 
+save_as_html(tab1, path = file.path(docs, "sequences_table01.html")) # save a shared copy
 
 # gtsummary::as_gt() %>%
 # gt::tab_source_note(gt::md("*Source: American Time Use Survey (2019 & 2020)*
