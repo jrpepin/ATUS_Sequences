@@ -18,7 +18,7 @@ data_atus   <- "atus_?????.xml"    # Name of the downloaded atusX data file
 
 ## Directories
 projDir     <- here()                                          # File path to your master project folder (Project GitRepository)
-dataDir     <- "C:/Users/Data/ATUS/ATUS19_20"                  # File path to where the data was downloaded
+dataDir     <- "../../Data/ATUS/ATUS19_20"                     # File path to where the data was downloaded
 
 srcDir      <- file.path(projDir, "scripts")                   # File path to the R scripts
 outDir      <- file.path(projDir, "output")                    # File path to save tables/figures
