@@ -42,7 +42,6 @@ summary(actdata$duration)
 actdata[["activity"]][is.na(actdata[["activity"]])] <- "0"
 summary(actdata$activity)
 
-
 ## Check that duration = 1440
 actdata %>%
   group_by(caseid) %>%
