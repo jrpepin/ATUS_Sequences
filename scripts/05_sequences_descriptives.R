@@ -22,8 +22,8 @@ seqlegend(seqdata.seq, cex = 1.3, ncol = 2)
 
 ## seqdplot() for plotting the state distribution at each time point (tempograms)
 
-levels(seqdata$sex)[levels(seqdata$sex)=="Man"]   <- "Fathers"
-levels(seqdata$sex)[levels(seqdata$sex)=="Woman"] <- "Mothers"
+# levels(seqdata$sex)[levels(seqdata$sex)=="Man"]   <- "Fathers"
+# levels(seqdata$sex)[levels(seqdata$sex)=="Woman"] <- "Mothers"
 
 ### tempograms by gender
 seqdplot(seqdata.seq, group = seqdata$sex, 
@@ -46,7 +46,7 @@ seqIplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F)
 seqmtplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F, weighted=FALSE) ## The weights create an error, so set them to false.
 
 ## Modal state plot
-seqmsplot(seqdata.seq, group = seqdata$sex, border=NA, with.legend = F)
+seqmsplot(seqdata.seq, group = interaction(seqdata$year, seqdata$sex), border=NA, with.legend = F)
 
 ## the state distribution by time points
 seqdplot(seqdata.seq, with.legend = F, border = NA, main = "State distribution plot")
@@ -63,42 +63,69 @@ seqdplot(seqdata.seq, with.legend = F, border = NA, main = "State distribution p
 ################################################################################################
 # VISUALIZING CLUSTERS
 
-# Figure 4. Tempograms of the 5 clusters -------------------------------------------
+# Figure 4. Tempograms of the 6 clusters -------------------------------------------
   
-## 5	OMS	PAM	Ward https://rpubs.com/Kolpashnikova/sequenceAnalysis
-clust5 <- cutree(ward.oms, k = 5)
+## 6	OMS	PAM	Ward https://rpubs.com/Kolpashnikova/sequenceAnalysis
+clust6 <- cutree(ward.oms, k = 6)
 
-  clust5 <- factor(clust5, labels = c("Strange", "Day Workers", "Houseworkers", "TV Viewers", "Caregivers"))
+clust6 <- factor(clust6, labels = c("Errands", "Houseworkers", "Paid Workers",  "Work & CareTakers",  "Players", "Caregivers"))
+  
+# keep <- as.clustrange(ward.oms, 
+#                       diss = dist.oms,
+#                       weights = seqdata$wt20, 
+#                       ncluster = 6)
+#   
+# saveRDS(keep, file = file.path(outDir, "keep.RDS")) # save this version
+keep <- readRDS(file.path(outDir, "keep.RDS")) # load saved version
   
   # Method 1 (what's saved in outDir)
-  png (file.path(outDir, "sequences_fig4.png"), width = 5, height = 5, units = 'in', res = 300)
+  png (file.path(outDir, "sequences_fig4.png"), width = 5, height = 7, units = 'in', res = 300)
   seqdplot(seqdata.seq, 
-           group = clust5, 
+           group = clust6, 
            border = NA, 
            yaxis = FALSE, 
            ylab = "")
   dev.off()
 
   # Method 2 (what gets printed on plot window)
-  keep <- as.clustrange(ward.oms, diss = dist.oms,
-                             weights = seqdata$wt20, ncluster = 5)
-  
-  seqdplot(seqdata.seq, group = keep$clustering$cluster5, border = NA)
+
+    seqdplot(seqdata.seq, group = keep$clustering$cluster6, border = NA)
   # if error, increase the plot area window
+  
+  
   
 ################################################################################################
 # MULTINOMIAL ANALAYSIS
   
 ## Assign respondents to a cluster and re-label the typologies -------------------------------
-seqdata$hcm <- factor(keep$clustering$cluster5, 
-                      levels = c(1, 2, 3, 4, 5), 
-                      labels = c("Strange", "Day Workers", "Houseworkers", "TV Viewers", "Caregivers"))
+seqdata$hcm <- factor(keep$clustering$cluster6, 
+                      levels = c(1, 2, 3, 4, 5, 6), 
+                      labels = c("Errands", "Houseworkers", "Paid Workers",  "Work & CareTakers",  "Players", "Caregivers"))
 
 ## Save the data as a csv file.
 write.csv(seqdata, file.path(outDir, "seqdata.csv"))
 
 ## If want to start from saved output file.
 seqdata <-  read.csv(file.path(outDir, "seqdata.csv"), header = TRUE)
+
+
+# ------------------------------------------------------------------------------
+# Graphing the sequences
+
+# How to plot 1 cluster
+
+## subset data by cluster
+cl1<-(seqdata.seq[seqdata$hcm ==  "1",])
+
+## plot the selected cluster 
+par(mfrow=c(1,1))
+seqdplot(cl1, main = "",
+         cex.main = 1.7, 
+         with.legend = FALSE, 
+         yaxis = FALSE, 
+         ylab = "",
+         border = NA)
+
 
 ## I did the ASA paper graphs this way, but we should consider doing regressions as described in Stuber 2013 (see code below)
 seqdata$year <- as.factor(seqdata$year)
