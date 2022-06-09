@@ -85,7 +85,7 @@ qmdata <- qmdata %>%
 qmtable <- qmdata %>%
   subset(clusters <= 6) %>%
   select("clusters", "diss", "algorithm", "method",
-         "PBC", "HG", "ASWw", "HC") %>%
+         "HC", "ASWw", "PBC", "HG") %>%
   arrange(clusters) %>%
   mutate_if(is.numeric, round, digits=3)
 
@@ -111,23 +111,50 @@ qmdata <- qmdata %>%
       diss == "OMS" & algorithm == "PAM" & method == "Ward" ~ "OMS-PAM-Ward",
       diss == "DHD" & algorithm == "PAM" & method == "Beta" ~ "DHD-PAM-Beta",
       diss == "OMS" & algorithm == "PAM" & method == "Beta" ~ "OMS-PAM-Beta"))
-      
+
+## only use weighted sequences
+qmdata <- qmdata %>%
+  mutate(
+    app2 = case_when(
+      diss == "DHD" & algorithm == "HCM" & method == "Ward" ~ "DHD-HCM",
+      diss == "OMS" & algorithm == "HCM" & method == "Ward" ~ "OMS-HCM",
+      diss == "DHD" & algorithm == "PAM" & method == "Ward" ~ "DHD-PAM",
+      diss == "OMS" & algorithm == "PAM" & method == "Ward" ~ "OMS-PAM"))
+
+qmdata$stat <- factor(qmdata$stat,
+                          levels = c("HC", "ASWw", "PBC", "HG",
+                                     "HGSD", "ASW", "CH", "R2", "CHsq", "R2sq"), 
+                          ordered = FALSE)  
+    
 # Let's graph it!
 # Stats we care about
 # "PBC", "HG", "ASWw", "HC"
 
+qmdata$zscore <- ave(qmdata$value, qmdata$stat, qmdata$clusters, FUN=scale) # standardize values
+
 fig3 <- qmdata %>%
-  filter((stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC") & clusters <=10) %>%
-    ggplot(aes(x = clusters, y = value, color = approach)) +
-    facet_grid(vars(diss), vars(stat)) +
-      geom_line(lwd = 1) +
+  filter((stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC") & clusters >=3  & clusters <=10 & !(is.na(app2))) %>%
+    ggplot(aes(x = clusters, y = zscore, color = app2)) +
+  geom_line(lwd = 1) + 
+  geom_point(data=qmdata %>% filter(clusters == 6 & app2 == "OMS-PAM" &
+             (stat == "PBC" | stat == "HG" | stat == "ASWw" | stat == "HC")),
+             pch=19,
+             size=4,
+             show.legend = FALSE) +
+    facet_wrap(~stat, ncol = 4) +
   theme_minimal() +
-  ggtitle("Figure 3. Quality Measures for Sequence Analysis Approach") +
-  labs(x = "Number of clusters", y = "Values")
+  theme(text = element_text(size = 22),
+        legend.title= element_blank()) +
+  labs(x = "Number of clusters", y = "ZScore") +
+  scale_color_discrete_diverging(palette = "Cyan-Magenta") 
+#  ggtitle("Figure 3. Quality Measures for Sequence Analysis Approach") 
   
 fig3
 
-ggsave(file.path(outDir, "sequences_fig3.png"), fig3, width = 24, height = 16, units = "cm", dpi = 300)
+ggsave(file.path(outDir, "sequences_fig3.png"), fig3, width = 12, height = 5, units = "in", dpi = 300)
+
+# for later -- shade just HC for min value indicator 
+# https://stackoverflow.com/questions/9847559/conditionally-change-panel-background-with-facet-grid
 
 setOutputLevel(Info)
 report(Info, "End of 04_sequences_quality analyses")     # Marks end of R Script
