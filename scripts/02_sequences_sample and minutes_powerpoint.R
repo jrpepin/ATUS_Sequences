@@ -77,7 +77,7 @@ fig2B <- tempo_men %>%
                                 "#00A846", "#00A2D3",
                                 "#9183E6", "#D766C9")) +
   scale_x_continuous(limits = c(0, 1440),
-                     breaks = c(0, 500, 1000, 1440)) +
+                     breaks = c(0, 240, 480, 720, 960, 1200, 1440)) +
   labs(x        = NULL, 
        y        = NULL)
 # ggtitle("Figure 2. Tempograms: Proportion of Men in Each Activity by Minute") 
@@ -123,7 +123,7 @@ fig2C <- tempo_fem %>%
                                 "#00A846", "#00A2D3",
                                 "#9183E6", "#D766C9")) +
   scale_x_continuous(limits = c(0, 1440),
-                     breaks = c(0, 500, 1000, 1440)) +
+                     breaks = c(0, 240, 480, 720, 960, 1200, 1440)) +
   labs(x        = NULL, 
        y        = NULL)
 # ggtitle("Figure 2. Tempograms: Proportion of Women in Each Activity by Minute") 

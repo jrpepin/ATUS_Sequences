@@ -17,12 +17,12 @@ clust6 <- factor(clust6, labels = c("Errands", "Houseworkers", "Paid Workers",  
 keep <- readRDS(file.path(outDir, "keep.RDS")) # load saved version
 
 # Assign respondents to a cluster ----------------------------------------------
-seqdata$hcm <- factor(keep$clustering$cluster6, 
-                      levels = c(1, 2, 3, 4, 5, 6), 
-                      labels = c("Errands", "Houseworkers", "Paid Workers",  "Work & CareTakers",  "Players", "Caregivers"))
-
-## Save the data as a csv file.
-write.csv(seqdata, file.path(outDir, "seqdata.csv"))
+  # seqdata$hcm <- factor(keep$clustering$cluster6, 
+  #                       levels = c(1, 2, 3, 4, 5, 6), 
+  #                       labels = c("Errands", "Houseworkers", "Paid Workers",  "Work & CareTakers",  "Players", "Caregivers"))
+  # 
+  # ## Save the data as a csv file.
+  # write.csv(seqdata, file.path(outDir, "seqdata.csv"))
 
 ## Start from saved output file. 
 seqdata <-  read.csv(file.path(outDir, "seqdata.csv"), header = TRUE)
