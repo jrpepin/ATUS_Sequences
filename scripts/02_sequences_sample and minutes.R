@@ -106,7 +106,7 @@ read_docx() %>%
   body_add_flextable(value = tab1) %>% 
   print(target = file.path(outDir, "sequences_table01.docx"))
 
-save_as_html(tab1, path = file.path(docs, "sequences_table01.html")) # save a shared copy
+save_as_html(tab1, path = file.path(outDir, "sequences_table01.html")) # save a shared copy
 
 # gtsummary::as_gt() %>%
 # gt::tab_source_note(gt::md("*Source: American Time Use Survey (2019 & 2020)*
@@ -162,7 +162,8 @@ meansDF <- means %>%
   select(column_label, x, predicted, group) %>%
   pivot_wider(names_from = x, values_from = predicted)
 
-meansDF$value <- meansDF$`2020` - diff$`2019`
+meansDF <- meansDF %>% 
+  mutate(value = get("2020") - get("2019")) 
 
 ## Rename gender variables
 levels(meansDF$group)[levels(meansDF$group)=="Man"]   <- "Men"

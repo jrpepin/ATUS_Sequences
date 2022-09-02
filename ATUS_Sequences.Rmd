@@ -1,0 +1,16 @@
+---
+title: "ATUS_Sequences"
+author: "Joanna R. Pepin, Liana Sayer, Sarah Flood"
+date: "`r Sys.Date()`"
+knit: (function(inputFile, encoding) {
+      out_dir <- "docs";
+      rmarkdown::render(inputFile,
+                        encoding=encoding,
+                        output_file='index.html',
+                        output_dir=file.path(dirname(inputFile), out_dir))})
+output: html_document
+---
+
+
+# Data 
+Replication code for data access and variable construction is available at [https://jrpepin.github.io/ATUS_Sequences/](https://jrpepin.github.io/ATUS_Sequences.html). 
