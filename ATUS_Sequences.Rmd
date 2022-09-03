@@ -13,4 +13,8 @@ output: html_document
 
 
 # Data 
-Replication code for data access and variable construction is available at [https://jrpepin.github.io/ATUS_Sequences/](https://jrpepin.github.io/ATUS_Sequences.html). 
+Replication code for data access and variable construction is available here.
+
+# Analytic Sample
+Table 1, showing the descriptive statistics of the analytic sample is available at: 
+[https://jrpepin.github.io/ATUS_Sequences/sequences_table01.html](https://jrpepin.github.io/ATUS_Sequences/sequences_table01.html). 
